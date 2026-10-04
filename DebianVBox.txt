@@ -1,0 +1,37 @@
+Configuración y atajos---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Guest Additions: 
+1) Apretar el archivo de "Comprobar guest additions" seguir las instrucciones.
+2) Cerrar el "Comprobar guest additions", esperar 2 minutos y volver a abrirle, ahí debería empezar la instalación.
+3) Se va a pedir configurar el grub-pc (gestor de arranque), hay que darle aceptar. Luego, seleccionar el dispositivo que marque más MB  (debería decir /dev/sda).
+
+
+
+Atajo para copiar y pegar en Debian: CTL+SHIFT+C, CTRL+SHIFT+V, respectivamente.
+
+
+
+Atajo para poner y quitar pantalla completa en Debian: CTRL de la derecha + F
+
+
+
+Compartir carpetas entre mi sistema y el debian: 
+1) Configuración en VBox-Carpetas compartidas-Icono a la derecha con un + 
+2) Seleccionar la carpeta 
+3) Poner ticket en Automontar y en Male Machine-permanent- En Mount Point poner "/home/pss/nombre_que_queramos"
+
+
+
+Monitorear el rendimiento del debian: Comando top.
+
+
+
+Ir al root en el terminal: Si nuestro usuario no es admin, para hacer actualizaciones de debian desde la terminal, hay que tener el usuario root, para esto se usa el comando su -.
+
+
+
+Actualizar Debian: Una vez al mes y cuando no haya que entregar una tarea hay que actualizar Debian con los comandos "sudo apt update" y "sudo apt upgrade".
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
