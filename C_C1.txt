@@ -1,0 +1,572 @@
+C1---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Tipos de datos en C:
+*int (números enteros) 
+*float (números decimales) 
+*double (números decimales con más precisión) 
+*char (un solo carácter) 
+*void (no almacena dato, se usa cuando una función no devuelve nada. Ej: una función que solo hace printf())
+
+
+
+Variantes de int en C: Para ser más especifico sobre el tipo de entero podemos usar otros tipos de datos.
+*short (entero pequeño)
+*long (entero grande) 
+*long long (entero muy grande) 
+*unsigned int (positivos) 
+
+
+
+¿Por qué importa la memoria en C?: En Python nunca nos preocupamos de la memoria que usamos pues Python
+gestiona la memoria de forma automática. Por otro lado, en C nosotros gestionamos la memoria, por eso es que debemos declarar el tipo de cada variable o cte. porque C leerá el tipo y reservará memoria RAM para trabajar con dicha variable o cte.
+Si definimos una variable y le asignamos un valor que sale del rango de la memoria RAM asignada, el programa dará valores erróneos.
+
+
+
+Atajo para compilar C en Vscode: F6 para compilar en Vscode y F8 para compilar en terminal
+
+
+
+Comentarios en C:
+*Comentarios en una sola línea: Se inicia con /* y se cierra con */
+*Comentarios en varias líneas: Se usa //
+
+
+
+stdio.h: s un archivo que viene con el compilador y contiene las declaraciones de las funciones básicas de C. Incluye printf(), scanf(), getchar(), putchar(), fopen(), fclose().
+
+
+
+Variables en C: Similar a Python, no pueden empezar con un numero.
+Usamos el formato camelCase (todo pegado donde las mayúsculas separan las palabras). 
+Ej: c= fechaDeNacimiento
+
+
+
+Constantes en C: Usamos el formato SCREAMING_SNAKE_CASE (todo en mayúscula separando con _ las palabras). Ej: FECHA_DE_NACIMIENTO
+
+
+
+Definir variables en C (Lenguaje de tipado fuerte): Al definir una variable hay que declarar el tipo de dato que es. En C hay que poner tipoDato variable = valor. Ej: int edad = 43.
+Para las funciones también hay que declarar el tipo del valor que retorna la función. 
+Ej: int main {
+	return 0
+}
+ 
+
+
+Lenguaje de tipado débil: Al definir una variable no hay que declarar el tipo de dato que es.
+
+
+
+Lenguaje estático: Hay que crear las variables antes de usarlas.
+
+
+
+Lenguaje dinámico: No es necesario crear las variables antes de usarlas.
+
+
+
+Definir constantes en C: Se escribe #define NOMBRE valor (no hay que poner ; al final de la línea). Ej: #define PI 3.14
+
+
+
+Especificadores de formato: Son secuencias que empiezan con el símbolo % y se usan dentro de las funciones de entrada/salida como printf(), scanf(), sprintf(), fprintf() para indicar qué tipo de dato se va a mostrar o leer y cómo debe interpretarse. Los especificadores más comunes son		
+*%d / %i (int (entero con signo)). Ej: printf("%d", 25);
+*%u	(unsigned int (entero sin signo)). Ej: printf("%u", 25u);
+*%f	(float / double). Ej: printf("%f", 3.14)
+*%c	(char (carácter)). Ej: printf("%c", 'A');
+*%s	(string (cadena de caracteres)). Ej: printf("%s", "Hola");
+*%p	(puntero (dirección de memoria)). Ej: printf("%p", &x);
+*%x / %X (entero en hexadecimal). Ej: printf("%x", 255); → ff
+*%o	(entero en octal). Ej: printf("%o", 8); → 10
+*%e / %E (notación científica). Ej: printf("%e", 12345.678);
+*%g / %G (el más corto entre %f y %e). Ej: printf("%g", 0.0001);
+*%%	(imprime el símbolo % literal). Ej: printf("%%"); → %
+
+
+
+Características de modificación: Son letras que se ponen luego del especificador de formato para especificar aún más el tamaño del dato, esto permite poner los tipos de enteros que conocemos (long, long long).
+*h (short, entero corto). Ej:%hd, %hu
+*hh (char, aún más corto). Ej:%hhd
+*l (long). Ej:%ld, %lu, %lf
+*ll (long long). Ej: %lld, %llu
+*L (long double). Ej: %Lf
+
+
+
+Ahorro de memoria en C: Al declarar correctamente el tipo de dato que es una variable se está ahorrando memoria.
+
+
+
+Leer/mostrar correctamente: Al usar los especificadores de formato y las características de modificación de forma correcta, me aseguro que no hayan bugs.
+
+
+
+printf(): El texto se pone entre " " y no podemos poner directamente las variables o las ctes. sino que hay que poner su especificador de formato y características de modificación. Luego, fuera de las "" con comas hay que poner la variable o cte. que sigue ese especificador de formato y carácter de modificación.
+Ej: printf("La primera edad es %d y la segunda edad es %d", edad1, edad2); imprime "La primera edad es edad1 y la segunda edad es edad2.
+Para hacer un salto de línea dentro de un printf() hay que escribir \n.
+
+
+
+scanf(): Es como el input de Python. Es importante que la variable donde se guardará lo que ingrese el usuario debe estar declarada con su respectivo tipo, además entre " " hay que poner el especificador de formato y carácter de modificación que corresponda al dato que ingresará el usuario. 
+Luego, fuera de las "" hay que poner &variableDondeGuardamos.
+Ej: 
+float examen1;
+printf("Dime la nota de tu primer examen: ");
+scanf("%f",&examen1);
+return 0;
+
+
+
+Barra invertida en teclado: ALT GR + tecla a la derecha del 0
+
+
+
+Representar un número binario en C: Sabemos que al escribir un entero o un número flotante, el pc lo recibe en número binario y trabaja a partir de eso, pero en C podemos escribir directamente números binarios (esto es útil para mostrar el funcionamiento de las operaciones bit a bit), para esto tenemos que tratar al binario como un entero y antes del numero binario poner 0b. Ej: int binario = 0b1101, declaramos el número binario 1101.
+Lo malo es que dentro del printf cuando se imprima el número binario lo hará en su forma entera, si quisiéramos que explícitamente se imprima el binario debemos hacer una función auxiliar que haga este proceso. Ej: printf("El número es %d", binario), imprime "El número es 13"
+
+
+
+Secuencias de escape en C: Son caracteres que empiezan con \ y tienen ciertas funciones especiales dentro de un texto (string) o un carácter (char). 
+Las secuencias de escape más comunes son:
+*\n (salto de línea)
+*\t (hace el efecto de haber apretado el Tab)
+*\r (devuelve el cursor al inicio de la línea en la que se está escribiendo)
+*\b (devuelve el cursor a la posición anterior a donde está el cursor)
+*\" o \' o \\  (permite imprimir " o ' o \)
+*\0 pendiente
+
+
+
+Operadores de incremento en C: Son operadores que aumentan en +1 o disminuyen en -1 un valor. Usamos ++ para aumentar en +1 y -- para disminuir en -1.
+Ej: int numero= 5;
+    numero++;
+    printf("%d", numero); //Debe retornar 6
+
+
+
+If, else if (elif de Python), else en C: Se usa de la siguiente forma
+if (condición) {
+    // código si es verdadero
+} else if (otra_condicion) {
+    // código si la otra es verdadera
+} else {
+    // código si ninguna es verdadera
+}
+
+
+
+Switch en C: Sirve para compara una misma variable con varios valores (varios casos), esto evita que tengamos que hacer else if todo el rato. Se usa de la siguiente forma
+switch (variable) 
+{
+case valor1:
+      // código si variable == valor1
+      break;
+case valor2:
+      // código si variable == valor2
+      break;
+default:
+      // código si no coincide con ningún caso
+}
+El break dentro de cada case es muy importante porque si se cae en un case que no tiene break, se ejecuta ese código y también se ejecuta el siguiente case hasta que se encuentre un break.
+
+
+
+While en C: Se usa la siguiente forma
+while (condición) {
+    // código a ejecutar
+}
+
+
+
+do while en C: No existe en Python, pero se podía simular usando un while True con un break dentro. La  utilidad es que se ejecuta el bloque de código y al final se lee la condición (Esto es muy usado para asegurarme de que se ejecute el bloque de código al menos una vez antes de evaluar la condición). Se usa la siguiente forma
+do {
+    // código a ejecutar
+} while (condición);
+
+
+
+for en C: En Python usábamos el for con un range, acá es similar pero no usamos range() sino que nosotros tenemos que indicar donde inicia el rango, la condición para que termine la iteración, cómo se actualiza el rango. Se usa la siguiente forma
+for (inicialización; condición; actualización) {
+    // código a ejecutar
+}
+
+Comparando el range() con la forma de hacerlo a mano, tenemos los siguientes ejemplos
+*range(1, 6) -> int i=1; i<6 ; i++
+*range(0, 20, 2) -> int i=0; i<20 ; i+=2
+*range(10, 0, -1) -> int i=10; i>0 ; i--
+
+*Si en Python hacemos un for i in lista -> En C (n es el largo de la lista) se hace for (int i=0; i<n; i++){ //código a ejecutar}
+
+
+
+While vs For: Usamos while cuando no sabemos cuantas iteraciones van a ser, y usamos for cuando si sabemos cuantas iteraciones van a ser.
+
+
+
+Listas y numpy array en PYTHON: En Python, las listas pueden tener elementos de distintos tipos, no se pueden hacer operaciones matemáticas directas, no funciona como matrices directamente.
+En Python, los numpy array son todo lo contrario a lo que nombramos de las listas.
+
+
+ 
+Arreglo en C: A diferencia de Python, en C los arreglos tienen un tamaño fijo, todos los elementos deben ser de un mismo tipo, no existe el slicing (Ej: lista[1:3]), no hay una función para conocer el tamaño (Ej: len(lista)). Se usa de la forma general tipo nombreArreglo[tamaño] = {valores};
+
+Hay varias formas de declarar un arreglo
+* Sin inicializar, con tamaño -> Ej: int numeros[5];
+* Inicializado, con tamaño -> Ej: int numeros[5] = {10, 20, 30, 40, 50};
+* Inicializado, sin tamaño (se infiere) -> Ej: int numeros[] = {10, 20, 30, 40, 50}
+* Inicializado parcialmente (rellena el resto de elementos con 0), con tamaño -> Ej: int numeros[5] = {10, 20}
+
+Para acceder a un elemento es igual que en Python nombreArreglo[indice] y para agregar un elemento (con el arreglo ya definido) es igual que en Python nombreArreglo[indiceDondeVaElElemento] = Elemento
+
+En un futuro veremos cómo trabajar con punteros y tendremos prohibido acceder a los elementos con nombreArreglo[indice] xd.
+
+Se puede pedir al usuario que nos de el tamaño para luego definir el arreglo con dicho tamaño pero es peligroso porque un mal dato puede reventar la memoria y en compiladores antiguos directamente no se puede.
+
+
+
+
+Strings en C: Los strings son un arreglo de char donde el ultimo elemento es el carácter '\0'. Ej: El string "hola" es ['h','o','l','a', '\0']
+
+
+
+Puts: Es como el printf() pero exclusivo de strings y no permite poner variables, es más liviano en memoria. Ej: puts("Hola mundo")
+
+
+
+Funciones en C: Se tienen que definir fuera del main, pero se pueden llamar dentro del main pues este es el programa principal. No se pueden hacer funciones anidadas (una dentro de otra) y similar que las variables, hay que definir el tipo de retorno de la función. Se usa la siguiente forma
+tipoRetorno nombreFuncion(parámetros) {
+    // código
+    return valor;  // (si tipoRetorno no es void)
+}
+Al poner los parámetros, les tengo que poner el tipo de dato que son. Ej: int factorial(int n) {}
+
+
+
+Prototipo de función (declaración adelantada): Una práctica útil en C es al inicio del código poner la firma de cada función que tenemos (menos la función main), luego poner la función main, y luego definir todas las funciones que tenemos.
+
+La firma de una función es de la forma tipoRetorno nombreFuncion(parámetros);.
+Esto se hace porque C lee de arriba hacia abajo y para llamar a una función C necesita conocer de antes su tipo y sus parámetros, al leer la firma de cada función entiende que existen y que tipo de dato retorna, luego al entrar al main y ver que se llaman a las funciones no hay problema pues ya leyó la firma de cada función, y luego bajo el main lee la definición (lo que hace) cada función.
+
+Lo anterior es útil cuando dentro de las funciones usamos una dentro de otra, si no estuviera la firma de cada función, C no conocería alguna de las funciones (pues no hay una firma previa) y no compila.
+
+
+
+enum en C: Se define fuera del main. Es algo que nos permite crear un conjunto de nombres que en realidad representan números consecutivos, la forma es 
+enum nombreDelEnum {
+  elemento0, elemento1, elemento2, ...
+}
+Donde elemento0==0, elemento1==1, elemento2==2
+Ej: enum fruta {
+  manzana, pera, guinda
+};
+Donde manzana==0, pera==1, guinda==2
+
+Al hacer un enum, estamos creando un tipo de dato (como int, float, doublé, etc.) entonces podemos definir variables usando ese enum, de la forma enum nombreDelEnum variable = valor
+Ej: enum fruta {
+  manzana, pera, guinda
+};
+
+enum fruta f = pera;   // f vale 1 pues f es de tipo enum fruta así que sigue sus reglas
+f = f + 1;              // f vale 2, o sea "guinda"
+
+
+
+typedef en el contexto del enum: Es una forma para definir el enum y para definir variables del tipo del enum de forma más clara, se usa dentro del enum de la siguiente forma
+typedef enum {
+  manzana, pera, guinda
+} nombreDelEnum;
+
+Así ahora en vez de definir variables usando enum nombreDelEnum variable = valor, definimos las variables usando nombreDelEnum variable = valor. Ej:
+typedef enum {
+  manzana, pera, guinda
+} Fruta;
+
+Fruta f = pera;    // f vale 1 pues f es de tipo Fruta así que sigue sus reglas
+f = f + 1;          // f vale 2, o sea "guinda"
+
+
+
+Typedef fuera del contexto del enum: También puedo usar Typedef con otros tipos de datos como int, char, float,..., de la forma typedef tipoDato nombreNuevo. 
+Ej: typedef int Conjunto, ahora Conjunto es un alias para el tipo int y puedo definir una variable como Conjunto c (la variable c es de tipo conjunto, es decir, de tipo int).
+
+
+
+Utilidad del enum/typedef: Sirve para trabajar con conjunto de mapa de bits.
+
+
+
+Mapas de bits: Al hacer enum, le estoy asignando un numero a cada elemento del conjunto (0,1,2,...). 
+Sabemos que los tipos de datos tienen cantidades de bits, Ej: consideremos un int con 8 bits (suposición porque en realidad son 32 bits), a cada bit le podemos asignar una posición de derecha a izquierda (del 0 al 7 contando desde la derecha).
+
+Los números que representan a cada elemento del enum (0,1,2,...), los podemos usar como las posiciones de cada bit.
+Si hacemos typedef int Conjunto; Conjunto c=0;, estamos dando el alias de int a Conjunto y luego estamos definiendo la variable c de tipo Conjunto (int en verdad).
+Ese c=0 es un numero binario con 32 bits llenos de 0, si prendemos algún bit de la posición 0,1,2,... (de derecha a izquierda) estamos representando que dentro de ese conjunto c tenemos a los elementos del enum cuyo bit de posición esté encendido (sea un 1) 
+
+Todo lo que hicimos se llama conjunto mediante mapa de bits. Básicamente, usar cada bit individual de una variable para representar la pertenencia de un elemento a un conjunto (cada bit mapea a un elemento especifico y su valor 0 o 1 indica si ese elemento está o no en el conjunto).
+
+
+
+Especificador de formato 0b: Con 0b al inicio de un binario podemos poner binario directamente en C. Ej: 0b100 que es 4 en entero, C lo entiende.
+
+
+
+Punteros en C: Es una variable que guarda la dirección de memoria de otra variable, no guarda el valor directamente sino la dirección donde está guardado ese valor.
+La forma de usarlos es primero definir la variable que queremos guardar y luego definir el puntero que guarda la dirección de memoria de esa variable. Ej:
+int x= 10;
+int *p = &x;	//El puntero p guarda la dirección de memoria de x
+Al definir el puntero, este debe ser del mismo tipo que el tipo de la variable al que le guarda la dirección de memoria.
+Poniendo un * al inicio del nombre indicamos que esa variable es un puntero y usamos & al inicio de la variable para obtener su dirección de memoria.
+Sea el puntero p
+* *p es directamente el valor guardado en la dirección de memoria
+* p es la dirección de memoria
+Haciendo *p = algo, estamos cambiando directamente el valor guardado en la dirección de memoria por algo.
+Un puntero es en si la dirección de memoria.
+Si un puntero p guarda la dirección de memoria de x, decimos que p apunta a x.
+
+
+
+Duda recurrente con *p y &x: Una duda común es que si &x obtiene la dirección de memoria de x, entonces ¿por qué la estamos guardando en *p si se supone que *p es un valor no una dirección?.
+Lo que pasa es que al definir el puntero, el * solo indica que p es un puntero int *p=&x dice "defino la variable p, que es de tipo puntero a int y que guarda la dirección &x". Por otro lado, cuando usamos *p como variable, ahí estamos usando al valor guardado en la dirección de memoria.
+
+
+
+Pasar una variable a una función por valor:  Si tenemos definida una función cualquiera de la forma función(tipoDato parámetro) que recibe parámetros, cuando llamamos a esa función de la forma función(variable), lo que hace C es que el valor de variable SE COPIA en parámetro. 
+Por ejemplo, si variable = 2 y hacemos función(variable), ahora parámetro = 2.
+
+Como variable y parámetro son variables independientes (a pesar de que tienen el mismo valor), cualquier cosa que se haga dentro del código de la función afecta a parámetro pero no afecta a la variable.
+
+
+
+Pasar una variable a una función por referencia: Para que al pasar la variable a una función SÍ se modifique el valor de la variable tenemos que hacer dos cosas
+*La función debe recibir como parámetro (o parámetros) un puntero (o punteros), usando * al inicio del parámetro en TODO el código de la función, función(*parámetro)
+*Al darle la variable a la función, hay que darle la dirección de memoria que guardar el valor de la variable, función(&variable)
+De esa forma, estamos modificando el dato que está en la dirección de memoria de la variable y por ende modificamos directamente la variable y no una copia de la misma.
+
+
+
+Función sizeof(): Dice cuantos bytes ocupa de memoria un tipo de dato, se usa de la forma sizeof(tipoDato). Ej: sizeof(int) da 4, pues un int ocupa 4 bytes (32 bits).
+
+
+
+malloc(): Es una función que reserva memoria dinámicamente mientras se ejecuta el programa, reserva memoria en una zona llamada heap. 
+Al definir una variable con su tipo, C automáticamente reserva unos bytes de memoria según el tipo, pero al usar malloc() nosotros podemos decidir cuánta memoria pedir al programa.
+
+La forma de usarlo es tipo *puntero = malloc(cantidadSegúnElTipo * sizeof(tipo)).
+malloc recibe bytes (cantidadSegúnElTipo * sizeof(tipo)) y devuelve una dirección de memoria del tamaño de esos bytes (o a Null si es que no se pudo reservar memoria).
+Ej: int *p = malloc(5 * sizeof(int)) reserva memoria para 5 ints y guarda la dirección en el puntero p.
+
+
+
+free(): Libera la memoria que se reservó en malloc(). La forma de usarlo es, sea tipo *puntero = malloc(cantidadSegúnElTipo * sizeof(tipo)), la memoria se libera con free(puntero).
+
+
+
+Arreglos en C: Es un cjto enumerado de variables de un mismo tipo. La forma de definir un arreglo es tipoDeLosElementos a[cantidadDeElementos];. 
+Ej: int a[10] define un arreglo de 10 variables int.
+
+Para seleccionar la variable del arreglo es igual que Python, sea el arreglo a, se accede a los elementos con a[posición]. 
+Ej: a[0] accede al elemento de la posición 0 del arreglo.
+
+Así, si queremos acceder a la dirección de un elemento de un arreglo podemos definir un puntero que guarde esa dirección.
+Ej: int a[2] y luego int *p=&a[2], p guarda la dirección de memoria donde está el elemento de la posición 2 del arreglo a.
+
+Si hacemos int *p=a es lo mismo que hacer int *p=&a[0].
+
+No hay forma de determinar el tamaño del arreglo (no existe un len(arreglo)).
+Si accedemos a un elemento del arreglo que no existe no da error pero dará un dato random.
+
+
+
+Usar [] en punteros: El usar [] no es exclusivo de los arreglos, también los podemos usar con punteros en los siguientes casos
+*El puntero apunta a un elemento del arreglo. Ej: int *p=&a[3] podemos hacer p[0] (lo mismo que el elemento a[3]), p[-1] (lo mismo que el elemento a[2]).
+Con lo anterior tenemos que: 
+p[i]  es equivalente a  *(p + i)
+&p[i] es equivalente a  p + i (esto no lo pusimos en el ejemplo pero igual sirve)
+
+*Al hacer un malloc, podemos seleccionar que valores se pone en cada espacio de memoria guardada. 
+Ej: int *p = malloc(5 * sizeof(int)) podemos luego hacer p[0]=10, p[1]=20, ..., p[4]=43
+
+
+
+Inicializar un arreglo con ceros: Es más fácil entenderlo con un ejemplo, la forma es
+double z[1000];
+for (int i = 0; i < 1000; i++) {
+    z[i] = 0;
+}
+
+
+
+Aritmética de punteros: Sea un puntero p que apunta a una arreglo.
+
+p++ (o p+=1) avanza la dirección del puntero según el sizeof() del tipo de dato al que apunta el puntero.
+Ej: Si p apunta a un int, sabemos que sizeof(int) es 4 bytes, así p++ avanza la dirección 4 bytes.
+Ej:
+int arr[5] = {10, 20, 30, 40, 50};
+int *p = arr;      // p apunta a arr[0], dirección Ej: 1000
+p++;               // p ahora apunta a arr[1], dirección 1004 (no 1001)
+
+*p++ toma el valor al que apunta p y luego hace p++.
+
+*++p  hace p++ y luego toma el valor al que apunta p.
+
+p-- (o p-=1) retrocede la dirección del puntero según el sizeof() del tipo de dato al que apunta el puntero.
+Ej: Si p apunta a un int, sabemos que sizeof(int) es 4 bytes, así p-- retrocede la dirección 4 bytes.
+Ej:
+int arr[5] = {10, 20, 30, 40, 50};
+int *p = &arr[2];   // p apunta a arr[2], dirección Ej: 1008
+p--;                // p ahora apunta a arr[1], dirección 1004 (retrocede 4 bytes, no 1)
+
+*p-- toma el valor al que apunta p y luego hace p--.
+
+*--p hace p-- y luego toma el valor al que apunta p.
+
+
+
+Funciones y arreglos: Si a una función le queremos pasar un arreglo, hay que definir ese parámetro como un puntero con el tipo de los elementos del arreglo, por ejemplo el parámetro int *p si es que el arreglo es de enteros. 
+
+De esta forma cuando le damos el arreglo b a la función, C hace una conversión automática donde en vez de recibir b recibe &b[0], es decir, recibe la dirección del primer elemento del arreglo. 
+
+Luego como vimos antes, cuando una función recibe la variable como parámetro (en este caso la variable es el &b[0]), esta se copia dentro del parámetro, y como la función tiene como parámetro un puntero p, se termina definiendo int *p=&b[0].
+Ej: void hola(int *p), al hacer hola(b) se toma int *p=b, que C lo hace como int *p=&b[0]
+
+Lo anterior es medio enredado cuando desarrollamos una función que recibe como parámetro un arreglo, pero en verdad hay que pensar que lo que recibe la función es un puntero al primer elemento del arreglo, y trabajar sobre eso. La parte de *p=&b[0] se entiende sola.
+
+Si a una función le ponemos como parámetro un arreglo, C automáticamente considera ese arreglo como un puntero, pero como vimos podemos usar [] y trabajar como si fuera un arreglo.
+Para ser más claros es mejor poner directamente como parámetro un puntero y no un arreglo. 
+Ej: void invertir (int *a, int tam).
+
+
+
+Funciones que devuelven arreglos y funciones que devuelven punteros:
+*Cuando una función modifica un arreglo ya existente decimos que devuelve un void. Ej: void invertir(int *a, int tam) {}
+*Cuando una función crea un arreglo y quiero devolverlo, tenemos que devolver el puntero al primer elemento de ese arreglo.
+
+
+
+Tuplas en C: A diferencia de Python donde podíamos hacer c,d = d,c, en C no se puede hacer. Lo que hacia Python al hacer c,d=d,c es que se crea una tupla temporal (d,c) y luego se le da a c el primer valor de esa tupla y a d el segundo valor de esa tupla. 
+Esto logra intercambiar valores sin perderlos en el camino (todo gracias a la tupla temporal).
+Como en C no podemos usar eso, tenemos que poner a nosotros una variable temporal que guarde el dato que no queremos que se pierda.
+
+
+
+Strings en C: A diferencia de Python, en C los strings no son un tipo de dato, sino que son un arreglo de chars donde el ultimo elemento es un '\0' que indica que es el fin del string. EJ: char saludo[5]= {'H', 'O', 'L', 'A', '\0'}.
+
+Para crear un string, la forma más común es que al definir el arreglo de chars poner como valor directamente el string. Ej: char saludo[5] = "Hola".
+Como son arreglos, cumplen todas las cosas que ya explicamos de arreglos y punteros.
+
+
+
+Strings mutables y Strings inmutables: Al definir un string, podemos decidir si hacerlo mutable o inmutable. 
+*Definimos el string como lo hicimos en "Strings en C" produce un string mutable
+*Definimos el string guardándolo en un puntero, esto produce un string inmutable. Ej char *saludo = "Hola"
+
+
+
+Funciones conocidas para los strings:
+* int strlen(char *s) -> Entrega el tamaño del string sin considerar el \0 del final
+
+* char *strcpy(char *d, char *s) -> Copia el string s en el string d, el string d debe tener un tamaño mayor o igual a strlen(s)+1
+
+* int strcmp(char *s, char *r) -> Compara lexicográficamente los strings s y r, comparando carácter por carácter usando su valor numérico en ASCII. Donde 
+Si strcmp(s, r) < 0 ->	s es "menor" que r (va antes alfabéticamente)
+Si strcmp(s, r) == 0 ->	s y r son iguales
+Si strcmp(s, r) > 0 ->	s es "mayor" que r (va después alfabéticamente)
+
+
+
+Estructuras en C: Permite agrupar variables de distintos tipos con un mismo tipo de dato, creando así un tipo de dato "compuesto".
+Un arreglo solo guarda elementos del mismo tipo, pero si queremos representar un objeto que se caracteriza
+con elementos de distintos tipos, debemos usar una estructura.
+
+La forma de usarlo es
+typedef struct nombreNuevo{
+   tipoDato variable1; //Campo1
+   tipoDato variable2; //Campo2
+   ...
+} nombreDelTipo;
+Un campo es cada una de las variables individuales que están dentro de la estructura.
+
+Así al hacer nombreDelTipo variable estamos creando la variable del tipo nombreDelTipo.
+Luego, al hacer variable.variable1, variable.variable2, ..., estamos accediendo a los campos de la variable.
+
+Ej:
+typedef struct p {    
+    int x;
+    int y;
+} Punto;
+
+Punto cardinal;     // Creamos la variable cardinal de tipo Punto
+cardinal.x = 5;	    //A la variable cardinal, a su campo x le damos el valor de 5
+cardinal.y = 10;    //A la variable cardinal, a su campo y le damos el valor de 10
+
+
+
+Punteros con estructuras: Podemos tener un puntero que apunte a una variable de tipo nombreDelTipo, es decir,
+que apunta a una variable que es una estructura.
+Ej siguiendo el ej anterior:
+Punto *p = &cardinal //El puntero p guarda la dirección de memoria de la variable cardinal (que es una estructura de tipo Punto)
+
+Acá tenemos la operación ->, la cual permite acceder a un campo de la variable usando el puntero.
+De la forma puntero->variable1, puntero->variable2, ... .
+Ej siguiendo el ej anterior:
+p->x=5;	//A la variable donde apunta p, a su campo x le damos el valor de 5
+ 
+
+
+Estructura autorreferente: Es cuando dentro de una estructura, un campo contiene un puntero a la misma estructura (parecido a recursividad).
+La forma de usarlo es que ese campo es de la forma struct nombreNuevo *puntero; .
+
+Ej: Al definir la estructura de un Nodo, sabemos que cada Nodo tiene un string y tiene un puntero al siguiente Nodo, así
+typedef struct nodo {
+    char *str;	//Campo1: Puntero a un char
+    struct nodo *sgte;	//Campo2: Puntero al siguiente Nodo (que sigue la estructura Nodo)
+} Nodo;
+
+
+
+Tips de ejercicios de estructuras: Casi siempre habrá que ponerse en casos.
+Recordar que usamos los punteros para movernos.
+
+
+
+Punteros a punteros: Funciona igual que un puntero solo que en vez de guardar la dirección de memoria de una variable, guarda la dirección de memoria de un puntero.
+Al definir un puntero a puntero, hay que usar ** en vez de solo *.
+Ej:
+int x = 5;
+int *p = &x;     // p apunta a x
+int **pp = &p;   // pp apunta a p
+
+La utilidad de esto es
+*Modificar un puntero dentro de una función, análogo a cuando usábamos un solo puntero para modificar una variable dentro de una función.
+Ej:
+void cambiar(int **ptrALaVariablePuntero) {
+    *ptrALaVariablePuntero = malloc(sizeof(int));
+    **ptrALaVariablePuntero = 10;
+}
+
+int main() {
+    int *original = NULL;
+    cambiar(&original);
+    printf("%d\n", *original);   // 10
+    free(original);
+    return 0;
+}
+
+Este puntero también puede ser un puntero a un puntero a una estructura.
+
+
+
+Tips de ejercicios de puntero a puntero: La mayoría usan recursividad, recordar que para recursividad debo tener uno o más casos base.
+En el aux5, el puntero a puntero que recibe la función es la base de la recursividad.
+
+Una buena práctica que se hizo en el aux5 es que se definía un puntero "a" que es una copia del puntero a la lista enlazada, para así poder leer esa lista de forma cómoda, NO modificar. Está mejor detallado en la P1c del aux5.
+
+
+
+Tips de ejercicios de recursividad: NO hay que pensar en qué hace cada recursión, la clave es usar la confianza recursiva, es decir, hay que confiar en que hace correctamente lo que la función promete hacer para cada caso del problema.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
