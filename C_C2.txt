@@ -1,0 +1,993 @@
+C2 Archivo---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Buffering: Leer un archivo en disco es muy lento comparado a leer la memoria RAM. Además, leer 1 byte toma casi el mismo tiempo que leer 8 KB (8000 bytes) porque el costo está en acceder al disco, no en cuántos bytes se traen.
+
+La solución es la estructura FILE de C, la cual tiene un buffer (es un espacio de memoria que sirve para guardar datos de forma temporal mientras se mueven de un lugar a otro) interno de 8 KB, el cual funciona así
+*Si el archivo se usa en modo lectura
+  1) C trae 8 KB completos del archivo al buffer
+  2) Los siguientes bytes que se pidan leer, no se leen del archivo, sino del buffer
+  3) Cuando el buffer se agota, C vuelve a traer 8 KB completos del archivo al buffer
+*Si el archivo se usa en modo escritura
+  1) C va acumulando en el buffer lo que se escribe (tiene espacio de 8 KB)
+  2) Cuando el buffer se agota (o cuando se fuerza o el programa termina), C manda todo al disco
+
+
+
+FILE: Es una estructura definida en stdio.h, que representa un archivo abierto y guarda toda la información que C necesita para trabajar con él. Viéndolo de forma explícita es algo así
+typedef struct {
+    int   fd;          //descriptor del archivo (número que usa el sistema operativo)
+    char *buffer;      //el buffer de 8 KB
+    int   pos;         //por dónde vas leyendo/escribiendo dentro del buffer
+    int   bytes_en_buffer;  //cuántos bytes válidos hay en el buffer
+    int   modo;        //lectura, escritura...
+    int   error;       //si hubo algún error
+    int   fin_archivo; //si se llegó al final
+} FILE;
+
+A diferencia de las estructuras que hemos visto, en FILE no vamos a acceder a los campos sino que FILE está pensado para usarse a través de funciones como fopen, fgets, fprintf, fclose, fflush, ... .
+
+Al definir algo de tipo FILE SIEMPRE hay que usar un puntero.
+Ej: FILE *in = fopen("pers.txt", "r");	//Defino el puntero in que apunta a un FILE
+
+
+
+fopen: La sintaxis general es FILE *fopen(const char *nombreArchivo, const char *modo).
+Es una función que se usa de la forma fopen("ruta del archivo", "modo"), donde modo puede ser
+*r -> Lectura. El archivo debe existir
+
+*w -> Escritura. Si el archivo no existe, lo crea; Si el archivo sí existe, lo sobrescribe
+
+*a -> Escritura al final del archivo. Si el archivo no existe, lo crea; Si el archivo sí existe, conserva su contenido y lo nuevo lo escribe después de lo que ya había
+
+*r+ -> Lectura y escritura. El archivo debe existir
+
+*w+ -> Lectura y escritura. Si el archivo no existe, lo crea; Si el archivo sí existe, lo sobrescribe
+
+*a+ -> Lectura y escritura al final del archivo, Si el archivo no existe, lo crea; Si el archivo sí existe, conserva su contenido y lo nuevo lo escribe después de lo que ya había
+
+¿Qué significa "Lectura y escritura"? Que con el mismo puntero al archivo se pueden hacer las dos cosas a la vez (Ej: para leer con fgets y para escribir con fprintf), no es necesario tener un puntero al archivo para leer y otro puntero al archivo para escribir.
+Ej:
+FILE *f = fopen("datos.txt", "r+");   //un solo puntero, lectura y escritura
+fgets(lin, 82, f);                    //leo con f
+fprintf(f, "hola\n");                 //escribo con el mismo f
+
+Lo que hace es
+1) Pide al sistema operativo que abra el archivo, donde el sistema devuelve un número que identifica ese archivo (descriptor)
+2) Reserva memoria para la estructura FILE en heap (como un malloc(sizeof(FILE))).
+3) Reserva memoria para el buffer.
+4) Rellena la estructura con el descriptor, la dirección del buffer, el modo, ... (todos los campos de la estructura).
+5) Retorna un puntero a la estructura si todo salió bien o retorna NULL si hubo algún error
+
+
+
+fgets: La sintaxis general es char *fgets(char *destino, int n, FILE *archivo).
+Es una función que se usa de la forma fgets(destino, n, archivo), donde 
+*destino debe ser un arreglo
+*n debe ser un int
+*archivo debe ser un puntero a un FILE
+
+Lo que hace es
+1) Lee caracteres del archivo y los copia a destino, se detiene cuando ocurre alguna de las siguientes cosas
+*Lee un salto de línea '\n' (lo incluye en destino)
+*Ya leyó n-1 caracteres
+*Llega al final del archivo
+
+2) Retorna el mismo puntero a destino si se leyó al menos un carácter o retorna NULL si se llegó al final del archivo sin leer ningún carácter, o hubo un error
+
+¿A qué se refiere con "se llegó al final del archivo sin leer ningún carácter"?
+Que el cursor ya estaba en el final del archivo cuando se llamó a fgets, así que no había nada que leer. 
+
+
+
+fgetc: La sintaxis general es int fgetc(FILE *archivo).
+Es una función que se usa de la forma fgetc(archivo) donde
+*archivo debe ser un puntero a un FILE 
+
+Lo que hace es
+1) Toma el siguiente carácter del buffer del archivo (si el buffer está agotado, C primero trae 8 KB nuevos del archivo al buffer)
+2) Avanza el cursor del archivo una posición
+3) Retorna ese carácter, convertido a int
+4) Se retorna ese carácter convertido a int si todo salió bien o retorna EOF si hubo algún error o se llegó al final del archivo.
+
+Ej:
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]) {
+  FILE *in = fopen(argv[1], "r");
+  if (in == NULL) {
+    perror(argv[1]);
+    exit(1);
+  }
+  int c;                              //int, para poder comparar con EOF
+  int cuenta = 0;
+  while ((c = fgetc(in)) != EOF) {    //lee 1 carácter y revisa si es EOF
+    if (c == 'a')
+      cuenta++;
+  }
+  printf("Hay %d letras 'a'\n", cuenta);
+  fclose(in);
+  return 0;
+}
+
+¿Qué significa que el carácter esté retornado a int?
+Recordar ASCII, lo que se guarda es el código ASCII del carácter
+
+
+
+fread: La sintaxis general es size_t fread(void *destino, size_t tamaño, size_t cantidad, FILE *archivo).
+Es una función que se usa de la forma fread(destino, tamaño, cantidad, archivo) donde
+*destino es un arreglo
+*tamaño es el tamaño en bytes de cada elemento que se va a leer
+*cantidad es cuántos elementos se van a leer
+*archivo debe ser un puntero a un FILE, en ese archivo leeré
+
+Lo que hace es
+1) Calcula cuántos bytes en total se quieren leer usando tamaño*cantidad
+2) Toma esos bytes del buffer del archivo (si el buffer se agota, C trae 8 KB nuevos del archivo al buffer)
+
+3) Copia los bytes a destino, sin agregar '\0'
+Como destino es un arreglo, cada grupo de "tamaño" bytes se copia en un elemento del arreglo
+
+4) Avanza el cursor del archivo en la cantidad de bytes leídos
+5) Retorna la cantidad de elementos completos que logró leer si todo salió bien o retorna menos que cantidad si es que se llegó al final del archivo o hubo un error
+
+fread lee bloques de bytes tal cual están en el archivo, sin interpretarlos como texto.
+
+Ej:
+int nums[10];
+size_t leidos = fread(nums, sizeof(int), 10, in);   //fread lee 40 bytes (sizeof(int)*10) del archivo y los copia en el arreglo nums, donde cada 4 bytes se pone un elemento del arreglo nums
+printf("Se leyeron %zu ints\n", leidos);
+
+¿Qué es size_t?
+Es un tipo de dato entero sin signo.
+
+
+
+fread donde el destino no es un arreglo: En general, destino debe ser una dirección de memoria, entonces en vez de ser un arreglo también puede ser directamente una dirección de memoria de una variable, es decir, destino puede ser algo como &variable.
+Ej:
+int elem;                         
+fread(&elem, sizeof(int), 1, f);   //fread lee 4 bytes (sizeof(int)*1) del buffer del archivo y los copia en la memoria de elem
+
+OJO, el cálculo de (tamaño*cantidad), debe ser menor o igual que el espacio que tiene destino. 
+Ej: (tamaño*cantidad) es 40 bytes y el espacio que tiene nums es 40 bytes (pues es un arreglo de 10 ints y cada int son 4 bytes)
+
+Como destino es una dirección de memoria de una variable, fread copia los bytes directamente en el espacio que ocupa esa variable.
+
+
+
+fwrite: La sintaxis general es size_t fwrite(const void *origen, size_t tamaño, size_t cantidad, FILE *archivo).
+Es una función que se usa de la forma fwrite(origen, tamaño, cantidad, archivo) donde
+*origen es un arreglo donde están los datos que quiero escribir
+*tamaño es el tamaño en bytes de cada elemento que se va a escribir
+*cantidad es cuántos elementos se van a escribir
+*archivo debe ser un puntero a un FILE, en ese archivo escribiré
+
+Lo que hace es
+1) Calcula cuántos bytes en total se quieren escribir usando tamaño*cantidad
+
+2) Copia esos bytes desde origen al buffer del archivo
+Como origen es un arreglo, cada elemento aporta "tamaño" bytes
+
+3) Avanza el cursor del archivo la cantidad de bytes escritos
+4) Los bytes llegan al archivo en disco cuando el buffer se llena (llena los 8 KB), cuando se fuerza usando fflush o fclose, o cuando el programa termina (return en main o exit), en ese momento es cuando vemos reflejados los bytes en el archivo
+5) Retorna la cantidad de elementos completos que logró escribir si todo salió bien o retorna menos que cantidad si hubo un error
+
+Es la contraparte de fread, en vez de leer bloques de bytes del archivo, escribe bloques de bytes en el archivo.
+
+Ej:
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+  int nums[3] = {10, 20, 30};
+  FILE *out = fopen("numeros.bin", "w");
+  if (out == NULL) {
+    perror("numeros.bin");
+    exit(1);
+  }
+  fwrite(nums, sizeof(int), 3, out);   //escribo 3 ints (3*4 = 12 bytes)
+  fclose(out);                         //vacía el buffer al disco
+  return 0;
+}
+
+
+
+fwrite donde el origen no es un arreglo: En general, origen debe ser una dirección de memoria, entonces en vez de ser un arreglo también puede ser directamente la dirección de memoria de una variable, es decir, origen puede ser algo como &variable.
+Ej:
+int P = 3;
+fwrite(&P, sizeof(int), 1, f);   //fwrite lee 4 bytes (sizeof(int)*1) de la memoria de P y los copia al buffer del archivo
+
+OJO, el cálculo de (tamaño*cantidad), debe ser menor o igual que el espacio que ocupa origen. 
+Ej: (tamaño*cantidad) es 4 bytes y el espacio que ocupa &P es 4 bytes (pues P es int)
+
+Como origen es la dirección de memoria de una variable, fwrite copia los bytes directamente desde el espacio que ocupa esa variable. 
+
+
+
+fprintf: La sintaxis general es int fprintf(FILE *archivo, const char *formato, ...).
+Es una función que se usa de la forma fprintf(archivo, formato, ...) donde
+*archivo debe ser un puntero a un FILE
+*formato es el texto con los especificadores de formato que usamos en printf. Ej: "%s", "%d", ...
+*... son los valores que se reemplazan en cada especificador de formato
+Básicamente fprintf es lo mismo que printf solo que ahora como primer argumento incluyo el archivo.
+
+Lo que hace es
+1) Toma el formato, los valores y construye el texto final (acá el printf lo escribiría en pantalla)
+2) Copia el texto final al buffer del archivo (recordar que este es una estructura FILE)
+3) El texto final llega al archivo en disco cuando el buffer se llena (llena los 8 KB), cuando se fuerza usando fflush o fclose, o cuando el programa termina (return en main o exit), en ese momento es cuando vemos reflejado el texto final en el archivo
+4) Retorna la cantidad de caracteres escritos si todo salió bien o retorna un entero negativo si hubo algún error
+
+
+
+fclose: La sintaxis general es int fclose(FILE *archivo).
+Es una función que se usa de la forma fclose(archivo) donde
+*archivo debe ser un puntero a un FILE 
+
+Lo que hace es
+1) Toma todo lo que está acumulado en el buffer del archivo y lo manda al archivo en disco (como el fflush)
+2) Le dice al sistema operativo que cierre el archivo (libera el descriptor)
+3) Libera la memoria del buffer y la memoria en heap que se usó para el archivo
+4) Retorna 0 si todo salió bien o retorna EOF si hubo algún error al mandar lo del buffer al disco.
+
+
+
+fflush: La sintaxis general es int fflush(FILE *archivo).
+Es una función que se usa de la forma fflush(archivo) donde
+*archivo debe ser un puntero a un FILE 
+
+Lo que hace es 
+1) Toma todo lo que está acumulado en el buffer del archivo y lo manda al archivo en disco, sin esperar a que el buffer se llene
+2) Retorna 0 si todo salió bien o retorna EOF si hubo algún error al mandar lo del buffer al disco
+
+
+
+Ciclo for infinito: Se hace con for(;;) pues el ciclo no tiene inicialización, condición, ni incremento.
+
+
+
+Ej de uso de fopen, fgets, fprintf:
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+  char lin[82];		//Arreglo llamado lin de 82 elementos
+  FILE *in = fopen("pers.txt", "r");	//in es un puntero a un FILE, este FILE es la estructura que representa al archivo pers.txt abierto en modo lectura
+  FILE *out = fopen("datos.txt", "w");  //out es un puntero a un FILE, este FILE es la estructura que representa al archivo datos.txt abierto en modo escritura
+  for (;;) {	//Ciclo for infinito
+    if (fgets(lin, 82, in) == NULL) 	//Se llegó hasta al final del archivo sin leer nada, el fgets escribe en lin
+      break;
+    fprintf(out, "%s", lin);	//Copia la línea al buffer de out (aún no está en el disco)
+    printf("%s", lin);		//Imprime en pantalla lo que llevo en el lin
+  }
+  return 0;
+}
+
+
+
+Manejo de errores: Casi todas las funciones que vimos antes avisan de un error mediante un valor que retornan, el inconveniente es que debemos estar atentos para detectar el error.
+La forma de manejar el error es mediante la función void perror(const char *s) donde
+*s es un string. Ej: "Error al abrir"
+
+Lo que hace es:
+1) El sistema, al fallar una función, guarda internamente un código del motivo del fallo (en una variable llamada errno). 
+2) perror toma el errno y traduce ese código a texto y lo imprime con el formato <s>: <descripción del error>
+
+Ej:
+FILE *in = fopen("pers.txt", "r");
+if (in == NULL) {   //Si in es NULL, es decir, hubo un error al abrir el archivo pers.txt
+    perror("Hubo error en pers.txt");  //Se muestra la descripción del error
+    exit(1);	//Se termina el programa con estado error
+}
+FILE *out = fopen("datos.txt", "w");
+if (out == NULL) { //Si out es NULL, es decir, hubo un error al abrir el archivo datos.txt
+    perror("Hubo error en datos.txt");	//Se muestra la descripción del error
+    exit(1);	//Se termina el programa con estado error
+}
+
+
+
+argv: Es el arreglo donde C guarda los argumentos que el usuario escribe al ejecutar el programa desde la terminal, es decir, cada elemento del arreglo es un string.
+Ej: Si en la terminal ejecutamos el programa copiar al que le pasamos dos archivos .txt, es decir, escribimos ./copiar pers.txt datos.txt.
+Se tiene que argv[0] es ./copiar, argv[1] es pers.txt, argv[2] es datos.txt 
+
+Nótese que los espacios separan los elementos del argv, salvo que se usen "". 
+Ej: ./copiar "mi archivo.txt"
+Se tiene que argv[0] es ./copiar, argv[1] es mi archivo.txt
+
+Ej del uso útil de argv:
+FILE *in = fopen(argv[1], "r");   // intenta abrir el archivo cuyo nombre se dio en la terminal como argumento al ejecutar el programa
+if (in == NULL) {                 // si falló la apertura del archivo
+    perror(argv[1]);              // imprime, por ejemplo: "pers.txt: No such file or directory"
+    exit(1);                      // termina el programa con código 1 (indica error)
+}
+
+
+
+argc: Es la cantidad de elementos que tiene el arreglo argv, contando el argv[0].
+Ej: ./copiar pers.txt datos.txt, el argc es 3.
+
+
+
+IMPORTANTE sobre argv y argc: Para poder usarlos, el int main debe ser de la forma int main(int argc, char *argv[]). Ya no usaremos la forma simplificada int main().
+
+
+
+exit: La sintaxis general es void exit(int estado).
+Es una función que se usa de la forma exit(estado) donde
+*estado puede ser 0 o 1, éxito o error, respectivamente
+
+Lo que hace es
+1) exit detecta si estado es 0 o 1
+2) Termina el programa y le entrega el estado (éxito o error) al sistema operativo
+
+Ojo, estado por convención suele ser 0 o 1, pero en verdad puede ser cualquier entero, el significado depende del sistema operativo y de cada programa. Ej exit(2).
+
+No siempre podemos usar exit, pues según el enunciado podemos estar limitados a qué funciones usar, en ese caso debemos usar return estado.
+Ej
+*exit(0) es lo mismo que return 0
+*exit(1) es lo mismo que return 1
+...
+
+
+
+ftell: La sintaxis general es long ftell(FILE *archivo).
+Es una función que se usa de la forma ftell(archivo) donde
+*archivo debe ser un puntero a un FILE
+
+Lo que hace es
+1) Toma la posición actual del cursor del archivo
+2) Retorna esa posición como un long contada en bytes desde el inicio del archivo (la posición 0 es el primer byte) si todo salió bien o retorna -1 si hubo algún error
+
+Si el cursor está al final, el ftell termina retornando el tamaño del archivo.
+
+
+
+fseek: La sintaxis general es int fseek(FILE *archivo, long desplazamiento, int origen).
+Es una función que se usa de la forma fseek(archivo, desplazamiento, origen) donde
+*archivo debe ser un puntero a un FILE
+*desplazamiento es la cantidad de bytes que quiero moverme (puede ser negativo para moverme hacia atrás)
+*origen es el punto desde el cual se cuenta el desplazamiento, hay 3 orígenes posibles
+  *SEEK_SET -> El inicio del archivo
+  *SEEK_CUR -> Posición actual
+  *SEEK_END -> El final del archivo
+
+Lo que hace es
+1) Si el buffer se estaba usando para escribir y queda texto pendiente dentro del buffer, lo manda al archivo en disco
+2) Si el buffer se estaba usando para leer, descarta el contenido del buffer
+3) Calcula la nueva posición usando origen + desplazamiento y la guarda en la estructura FILE (el campo pos)
+4) Limpia el indicador de fin de archivo (el campo fin_archivo de la estructura FILE)
+5) Retorna 0 si todo salió bien o retorna un valor distinto de 0 si hubo algún error
+
+fseek mueve el cursor del archivo, es decir, el lugar desde donde se va a leer o escribir la próxima vez.
+Sin usar fseek, el archivo se recorre siempre en orden, de principio a fin.
+
+
+Ej del uso de fseek: En la búsqueda binaria se necesita mirar el elemento del medio, luego del medio de la mitad, etc. 
+En un arreglo es fácil, pero en un archivo es lento, pero con fseek se puede ir a cualquier posición, así que se puede tratar el archivo como si fuera un arreglo.
+
+Para esto se debe tener la condición de que todas las líneas deben medir lo mismo en bytes, para que fseek sepa dónde empieza la línea k-ésima. 
+Así, la línea k-ésima empieza en el byte k*tamaño_de_línea.
+Ej: Supongamos que cada línea tiene 61 bytes,
+con k=0 se tiene que la línea 0 empieza en el byte 0 
+con k=1 se tiene que la línea 1 empieza en el byte 61
+
+Luego, se debe definir la estructura de una línea para tener su tamaño en bytes. 
+Ej: typedef struct { char llave[20], val[40], newline; } Linea, hay 61 bytes por línea (considerando el '\n' que está en newline).
+
+Para leer la k-ésima línea se hace fseek(fileDicc, k*sizeof(Linea), SEEK_SET).
+Ej: con k=3 se saltan 3*61=183 bytes, y el cursor queda al inicio de la cuarta línea
+
+Para la búsqueda binaria necesitamos saber cuántas líneas hay, y para eso se necesita el tamaño del archivo
+Ej: int nLineas = tamañoArch / sizeof(Linea).
+
+El tamaño del archivo lo obtenemos haciendo
+fseek(fileDicc, 0, SEEK_END);   //muevo el cursor al final
+int tamañoArch = ftell(fileDicc);  //pregunto en qué posición quedó y así se obtiene el tamaño del archivo
+
+
+
+fputs: La sintaxis general es int fputs(const char *cadena, FILE *archivo).
+Es una función que se usa de la forma fputs(cadena, archivo) donde
+*cadena es el string que se va a escribir
+*archivo debe ser un puntero a un FILE
+
+Lo que hace es
+1) Copia los caracteres de cadena en el buffer del archivo
+2) Avanza el cursor del archivo la cantidad de caracteres escritos
+3) El texto llega al archivo en disco cuando el buffer se llena (llena los 8 KB), cuando se fuerza usando fflush o fclose, o cuando el programa termina (return en main o exit), en ese momento es cuando vemos reflejado el texto en el archivo.
+4) Retorna un valor no negativo si todo salió bien o retorna EOF si hubo algún error
+
+fputs escribe un string en la posición actual del cursor y avanza en la cantidad de bytes escritos por el string.
+
+
+
+Diferencia de fprintf con fputs: fprintf permite meter en el string variables mediante los especificadores de formato, mientras que fputs mete solo el string tal cual.
+
+
+
+fputc: La sintaxis general es int fputc(int caracter, FILE *archivo).
+Es una función que se usa de la forma fputc(caracter, archivo) donde
+*caracter es el carácter que se quiere escribir, se pasa como int
+*archivo debe ser un puntero a un FILE
+
+Lo que hace es
+1) Copia el carácter en el buffer del archivo  
+2) Avanza el cursor del archivo una posición
+3) El carácter llega al archivo en disco cuando el buffer se llena (llena los 8 KB), cuando se fuerza usando fflush o fclose, o cuando el programa termina (return en main o exit), en ese momento es cuando vemos reflejado el carácter en el archivo.
+4) Retorna el carácter escrito como int si todo salió bien, o retorna EOF si hubo algún error
+
+fputc escribe el carácter en la posición actual del cursor y avanza el cursor en 1
+
+
+
+feof: La sintaxis general es int feof(FILE *archivo)
+Es una función que se usa de la forma feof(archivo) donde
+*archivo debe ser un puntero a un FILE
+
+Lo que hace es
+1) Consulta el indicador de fin de archivo (el campo fin_archivo de la estructura FILE)
+2) Retorna un valor distinto de 0 si ese indicador está activado, es decir, si una lectura anterior intentó leer más allá del final del archivo o retorna 0 si el indicador no está activado.
+
+feof informa si una lectura previa ya chocó con el final.
+
+Ej: Cuando fgetc retorna EOF o fread retorna menos de lo pedido, hay dos posibles causas: se llegó al final del archivo o hubo un error. feof y ferror permiten distinguirlas
+int c = fgetc(in);
+if (c == EOF) {
+  if (feof(in))
+    printf("Se llegó al final del archivo\n");
+  else if (ferror(in))
+    perror("fgetc");        // hubo un error de lectura
+}
+
+
+
+Funciones según su propósito: Hemos visto las funciones fopen, fgets, fgetc, fread, fprintf, fputs, fputc, fwrite, fclose, fflush, feof, ftell, fseek. 
+Todas las funciones, menos fopen, reciben como argumento un FILE *archivo, es decir, un puntero al archivo.
+
+Al definir este puntero debemos usar fopen, y por ende, definir el modo. Lo importante es que, según la función, se requiere un modo en específico o no.
+
+*Puntero a archivo en modo lectura -> Se puede usar con fgets, fgetc, fread
+*Puntero a archivo en modo escritura -> Se puede usar con fprintf, fputs, fputc, fwrite, fflush
+*Puntero a archivo en cualquier modo -> Se puede usar con fclose, feof, fseek, ftell
+
+
+
+Archivo binario: Un archivo .bin, es un archivo donde la información se guarda tal como la maneja el computador, es decir, por bytes (no convierte a texto). 
+Recordar que cada tipo de dato usa una cantidad de bytes
+*void -> 0 bytes
+*char -> 1 byte
+*int -> 4 bytes
+*float -> 4 bytes
+*double -> 8 bytes
+Así, en un archivo binario cada entero (int) ocupa 4 bytes, cada carácter (char) ocupa 1 byte, ... .
+
+
+
+Formato binario Big-endian y Little-endian: Es el orden en que se guardan los bytes de un número que ocupa más de un byte (int, float, double), es más fácil entenderlo con un ejemplo.
+Un número entero (int) ocupa 4 bytes, en hexadecimal ocupa 4 "pedazos", por ejemplo, el número 100.000 en hexadecimal es 00 01 86 A0 (cada par de cifras decimales son 1 byte, es decir, 8 bits).
+Hay que decidir en qué orden se escriben esos 4 bytes en el archivo
+*Big-endian: Primero va el byte más significativo (el par de cifras hexadecimales de más a la izquierda) -> 00 01 86 A0
+*Little-endian: Primero va el byte menos significativo (el par de cifras hexadecimales de más a la derecha) -> A0 86 01 00
+
+
+
+Arquitectura de trabajo y formato binario: Es importante que el formato binario (Big-endian o Little-endian) sean el mismo que la arquitectura de trabajo porque al usar fread y fwrite estamos copiando o leyendo bytes directamente desde el buffer (sin interpretar nada), por lo que la arquitectura de trabajo lo interpreta con su propio formato binario, y si este coincide con los del archivo al que le sacamos los bytes, podemos trabajar directamente sin necesitar hacer transformaciones. ¿Y si sí tuviéramos que transformar?
+
+
+
+Salidas estándar: Una salida estándar es el canal por donde un programa muestra sus resultados, hay dos salidas estándar
+*Salida estándar -> Canal stdout -> Usar printf para retornar lo que se pide
+*Salida estándar de errores -> Canal stderr -> fprintf(stderr, "..."), donde ... debe ser el mensaje de la salida estándar de errores
+   
+¿Qué es un canal?
+Es el camino por donde el programa envía texto hacia afuera.
+
+
+
+Código de retorno: Es el número que retorna el main usando return.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+C2 Assembler---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Preprocesador de C: Es un programa que revisa el código antes de que el compilador lo traduzca, no entiende la lógica de C, solo hace sustituciones de texto según las instrucciones que le demos.
+
+Cuando compilamos un programa en C, el proceso es 
+1) Código fuente (el .c)
+2) Preprocesador
+3) Compilador
+4) Ensamblador
+5) Enlazador
+6) Ejecutable
+Donde el preprocesador va antes del compilador, así que le entrega al compilador el archivo ya modificado.
+
+
+
+Directivas: Son líneas especiales que comienzan con el símbolo #, estas son las órdenes para el preprocesador.
+Ej: #include <stdio.h> le dice al preprocesador "busca el archivo stdio.h y pega todo su contenido aquí"
+ #define, #ifdef, ... .
+
+
+
+Macros sin parámetros: Un macro sin parámetros es un nombre que será sustituido por un valor, la forma de usarlo es #define macro valor, así cada vez que se encuentre un macro en el archivo se reemplaza por valor.
+Ej: #define N 30, le dice al preprocesador "cada vez que se encuentre N en el archivo se reemplaza por 30".
+
+
+
+Macros con parámetros: Un macro con parámetros funciona como una mini función. Pero sigue teniendo la base de que algo se sustituye por un valor.
+La forma de usarlo es #define función(parámetros) cuerpoDeLaFunción
+
+Ej:
+#define CUADRADO(x)  ((x) * (x))
+
+int a = CUADRADO(5);      // ((5) * (5)) = 25
+int b = CUADRADO(2 + 3);  // ((2 + 3) * (2 + 3)) = 25
+
+Otro ej:
+#define MIN(a,b)  (((a) < (b)) ? (a) : (b))
+
+int m = MIN(7, 3);   // 3
+
+
+
+Operador ternario: Es un if/else pero compacto y que devuelve un valor, la forma de usarlo es condición ? valorSiSeCumpleLaCondición : valorSiNoSeCumpleLaCondición, donde todo lo anterior conviene guardarlo en una variable.
+Ej:
+// Con if/else
+if (i > j)
+    resultado = i;
+else
+    resultado = j;
+
+// Con ternario
+resultado = (i > j) ? i : j;
+
+
+
+Compilación condicional: Es la capacidad del preprocesador de incluir o excluir trozos de código según una condición antes de compilar. Hacemos compilación condicional usando las directivas #if, #ifdef, #ifndef, #elif, #else y #endif.
+Hay cuatro formas de usar compilación condicional
+ 
+*Dar un valor por defecto
+#ifdef NOMBRE
+    /* código si NOMBRE está definido */
+#else //opcional
+    /* código si NOMBRE NO está definido */
+#endif
+
+Donde "está definido" significa que ya está definido con #define o es parte de un archivo que incluí con #include.
+
+
+*Dar un valor por defecto
+#ifndef NOMBRE
+    /* código si NOMBRE NO está definido */
+#else //opcional
+    /* código si NOMBRE está definido */
+#endif
+
+
+*Si la expresión es verdadera (ojo, debe poder calcularse con >, ==, &&, ||, !, ...) (una expresión)
+#if expresión
+    /* código si expresión es verdadera */
+#else
+    /* código si expresión es falsa */
+#endif
+
+
+*Si la expresión es verdadera (ojo, debe poder calcularse con >, ==, &&, ||, !, ...) (más de una expresión)
+#if expresion1
+    /* código si expresion1 es verdadera */
+#elif expresion2
+    /* código si expresion1 es falsa y expresion2 es verdadera */
+#else
+    /* código si ninguna fue verdadera */
+#endif
+
+
+
+Ver el resultado del preprocesamiento: Para ver cómo queda el código después del preprocesador (con los #include, los macros, la compilación adicional, etc.), debemos
+1) Poner en la terminal el comando gcc -E prog.c | less
+2) Apretar la letra G para ir al final
+ 
+
+
+Compilación integrada o Compilación separada: Cuando un programa tiene varios archivos .c, hay dos formas de generar el ejecutable, usando compilación integrada o usando compilación separada.
+*Compilación integrada -> Usando un solo comando, gcc compila todos los archivos y los une en el ejecutable. Lo malo es que cada vez se recompila todo aunque solo hayamos cambiado un archivo
+*Compilación separada -> ...
+
+
+
+Nivel: Se refiere a qué tan cerca o lejos está el lenguaje del hardware (procesador), hay dos tipos
+*Alto nivel: Lejos del hardware, cerca de cómo piensa un humano (Ej: Python, decimos "Prepara un café")
+*Bajo nivel: Cerca del hardware, cerca de cómo funciona la máquina (Ej: Assembler, decimos "Camina al estante, abre la puerta, extiende el brazo derecho, cierra los dedos sobre la taza, retira el brazo, camina a la cafetera, ..." )
+
+
+
+Assembler: Es un lenguaje de programación de muy bajo nivel.
+La idea es que el procesador solo entiende números (Ej: 00000000101000101000001010110011) y con assembler nosotros escribimos instrucciones con nombres legibles para humanos (Ej: add t0, t0, a0), que luego un programa llamado ensamblador traduce a esos números.
+
+Cuando se compila un programa en C con gcc, el compilador lo traduce a assembler y luego a código del procesador.
+
+Cada tipo de procesador tiene su propio assembler, es decir, tiene su propio conjunto de instrucciones que lo entiende, donde
+*Assembler x86 -> Para procesadores Intel/AMD
+*Assembler ARM -> Para procesadores de celulares, Apple M1, ...
+*Assembler RISC-V -> Para procesadores RISC-V
+
+
+
+Assembler RISC-V: Es el assembler del procesador RISC-V, es decir, es un conjunto de instrucciones (add, lw, beq, ...) que entiende un procesador que tenga arquitectura RISC-V. Assembler RISC-V tiene
+*Instrucciones: Operaciones simples
+*Registros: 32 registros llamados x0 a x31 con nombres alternativos donde se guardan los datos con los que se trabaja
+*Variantes: Según la versión del procesador (32 o 64 bits, con o sin multiplicación, con o sin punto flotante), el conjunto de instrucciones disponibles cambia un poco
+
+
+
+Sintaxis general del assembler RISC-V: Todo programa se arma con cuatro elementos
+*Etiquetas: Es un nombre seguido de ":" que marca una posición en el programa.
+Ej: fun:
+
+*Instrucciones: Es una operación que el procesador ejecuta, tiene dos partes, operación (qué hacer) y operandos (con qué datos hacerlo). 
+Donde los operandos pueden ser registros, inmediatos (números), etiquetas o direcciones de memoria
+Ej de instrucción usando la operación add y los registros a0, a0, a1: add a0, a0, a1
+Ej de instrucción usando la operación bgeu y los registros a0, t0 y la etiqueta fin: bgeu a0, t0, fin
+Ej de instrucción usando la operación lw y el registro t2 y la dirección de memoria 0(a0): lw t2, 0(a0)
+
+*Directivas: Es una orden para el ensamblador, empieza por punto.
+Ej: .globl fun
+
+*Comentarios: Texto que el ensamblador no usa, solo sirven para comentar, se usan de la forma #comentario.
+Ej: #suma a0 y a1, guarda el resultado en a0
+
+Ej Usando lo anterior:
+    .globl fun              # directiva
+fun:                        # etiqueta
+    add a0, a0, a1          # instrucción con operación y registros
+    ret                     # instrucción con operación
+
+Además, todo programa es una lista de líneas.
+
+Donde una línea tiene instrucción o tiene directiva, no ambas. Así, una línea puede tener alguna de las siguientes formas (no ambas).
+* etiqueta:   operación   operandos      #comentario (operación y operandos forman la instrucción)
+* etiqueta:   directiva     argumentos     #comentario
+
+Cada línea contiene alguno de los cuatro elementos (varios a la vez o ninguno).
+Ej: Puede haber una línea sin etiqueta ni comentario pero con operación y operandos.
+
+Ej de programa:
+fun:
+    add  t1, a1, a2     #3 operandos, todos registros
+    addi t1, t1, 5      #3 operandos: 2 registros y 1 inmediato
+    lw   t0, 4(a0)      #2 operandos: 1 registro y 1 de memoria
+    j    fin            #1 operando: 1 etiqueta
+fin:
+    ret                 #0 operandos
+
+El ensamblador lee el archivo de arriba hacia abajo, línea por línea y la ejecución también sigue ese orden.
+
+
+
+Word: Un Word es la unidad de datos con la que trabaja el procesador. 
+En RISC-V, 1 Word = 32 bits = 4 bytes 
+
+
+
+Valor inmediato: Es un número cte. escrito directamente dentro de la instrucción.
+
+
+
+Cargar: Significa escribir un valor en un registro, venga de donde venga.
+Donde copiar es solo un caso de carga que ocurre cuando el valor que se escribe en el registro viene de otro lugar donde ya existe ese valor (ya sea desde otro registro o desde una posición en memoria).
+
+
+
+Guardar: Significa escribir un valor en una dirección de memoria, tomándolo desde un registro.
+Es la única forma de modificar la memoria.
+
+
+Pasar de C a Assembler: Hay que seguir ciertas reglas
+*Los parámetros de una función se ponen en los registros a0, a1, a2, ...
+
+*Las variables locales se ponen en los registros temporales t0, t1, t2, ...
+A veces usaremos registros temporales auxiliares.
+
+Tanto los parámetros como las variables locales, no deben ser declarados o algo así, nosotros asumimos que están en sus respectivos registros.
+Ej: En la función int *g(int *a, int n, int x) asumimos que al pasar a assembler, a0=a, a1=n, a2=x
+Otro ej: int x, asumimos que al pasar a assembler, t0 = x
+
+
+
+Variables y constantes:
+
+C                      RISC-V
+-----------------------------------------------------------
+tipoDato x = constante;    li t0, constante 
+tipoDato x = y;           mv t0, t1
+x = y + z;             add t0, t1, t2
+x = y - z;             sub t0, t1, t2
+x = y + 10;            addi t0, t1, 10
+x = y * z;             mul t0, t1, t2
+x = y / z;             div t0, t1, t2
+x = y % z;             rem t0, t1, t2
+x = y & z;             and t0, t1, t2    # AND bit a bit
+x = y | z;             or t0, t1, t2     # OR bit a bit
+x = y ^ z;             xor t0, t1, t2    # XOR bit a bit
+ 
+Donde tipoDato puede ser cualquier tipo (int, char, short, ...)
+
+
+
+Definir un puntero: 
+Asumimos que a está en a1 y que n está en a0.
+
+C                              RISC-V
+-----------------------------------------------------------
+tipoDato *p = a;                    mv t0, a1
+(a es arreglo/puntero)
+
+tipoDato *p = &a[n];           slli t0, a0, k 
+                               add t0, a1, t0
+
+tipoDato *p = NULL;                 li t0, 0
+
+Donde tipoDato puede ser cualquier tipo (int, char, short, ...)
+
+Donde k:
+  tipoDato           sizeof   k
+  char                 1      0   (no hace falta slli (char *p = &a[n];), solo se usa  add t0, a1, a0) 
+  short                2      1
+  int                  4      2
+  long long / double   8      3
+
+
+
+Lectura y escritura en un puntero:
+Asumimos que p está en t0, que x está en t1 y que i es una constante.
+
+C                      RISC-V
+-----------------------------------------------------------
+x = *p;                carga t1, 0(t0)
+
+*p = x;                almacenamiento t1, 0(t0)
+
+*p = 0;                almacenamiento zero, 0(t0)
+
+x = *(p+i);            carga t1, d(t0)    
+
+Donde d = i*sizeof(tipoDato)
+
+Donde carga y almacenamiento dependen de tipoDato al que apunta p (tipoDato *p):
+  tipoDato           sizeof   carga      almacenamiento 
+  char                 1      lb               sb
+  short                2      lh               sh
+  int                  4      lw               sw
+  long long / double   8      ld (RV64)        sd (RV64)
+
+
+
+Aritmética de punteros:
+Asumimos que p está en t0, que q está en t1 y que k está en a0.
+
+C                      RISC-V
+-----------------------------------------------------------
+p++;                   addi t0, t0, s
+
+p--;                   addi t0, t0, -s
+
+p += k;                slli t2, a0, m
+                       add  t0, t0, t2
+
+p -= k;                slli t2, a0, m     
+                       sub  t0, t0, t2    
+
+q = p + 1;             addi t1, t0, s
+
+Donde tipoDato es el tipo al que apunta p (tipoDato *p)
+
+Donde s = sizeof(tipoDato)
+
+Donde m = log2(sizeof(tipoDato))
+
+  tipoDato           sizeof (s)   m
+  char                 1          0  
+  short                2          1
+  int                  4          2
+  long long / double   8          3
+
+Con char (m = 0) no hace falta slli.
+
+
+
+Arreglos:
+Asumimos que a está en a1, que i está en a0, que x está en t1 y que j es una constante.
+
+C                      RISC-V
+-----------------------------------------------------------
+x = a[i];              slli t0, a0, k
+                       add  t0, a1, t0
+                       carga t1, 0(t0)
+
+a[i] = x;              slli t0, a0, k
+                       add  t0, a1, t0
+                       almacenamiento t1, 0(t0)
+
+x = a[j];              carga t1, d(a1)
+(índice constante)
+
+Donde tipoDato es el tipo de los elementos del arreglo (tipoDato a[])
+
+Donde k = log2(sizeof(tipoDato))
+
+Donde d = j * sizeof(tipoDato)  
+
+Donde carga y almacenamiento dependen de tipoDato de los elementos de a:
+  tipoDato           sizeof   k   carga         almacenamiento
+  char                 1      0   lb            sb
+  short                2      1   lh            sh
+  int                  4      2   lw            sw
+  long long / double   8      3   ld (RV64)     sd (RV64)
+
+Con char (k = 0) no hace falta slli.
+
+
+
+if/else if/else: 
+Asumimos que x está en t0, que y está en t1.
+A, B y C representan bloques de código.
+c1, c2, ..., representan condiciones. 
+Las etiquetas else_if, else, fin, son nombres que elegimos y cada una debe ser única en el programa.
+
+C                              RISC-V
+-----------------------------------------------------------
+if (c1) {                      (salto a "fin" si c1 es falsa)
+    A                          A
+}
+                           fin:
+
+
+-----------------------------------------------------------
+if (c1) {                      (salto a "else_if" si c1 es falsa) 
+    A                          A
+} 			       j fin
+else {                         
+   B                       else:
+}                              B
+                           
+			   fin:
+                  
+
+-----------------------------------------------------------
+if (c1) {                      (salto a "else_if" si c1 es falsa) 
+    A                          A
+} 			       j fin
+else if (c2) {               
+    B			   else_if:		
+}                              (salto a "else" si c2 es falsa) 
+else {                         B 
+    C                          j fin
+}                           
+			   else:
+                               C
+
+                           fin:
+
+
+-----------------------------------------------------------
+
+Donde en "fin" se pone lo que está fuera del if/else if/else.
+
+¿Cómo se hace el salto y cómo reviso la condición?
+El salto se usa usando las instrucciones de la tabla "saltos".
+Para revisar la condición debo usar la instrucción de salto con la negación de la condición.
+
+Las más comunes son:
+  Condición en C   Salto si es falsa (a else / fin)
+  x == y           bne t0, t1, etiqueta
+  x != y           beq t0, t1, etiqueta
+  x <  y           bge t0, t1, etiqueta
+  x >= y           blt t0, t1, etiqueta
+  x >  y           ble t0, t1, etiqueta   (pseudo: bge t1, t0, etiqueta)
+  x <= y           bgt t0, t1, etiqueta   (pseudo: blt t1, t0, etiqueta)
+
+
+
+While y for:
+Asumimos que x está en t0, que y está en t1, que i está en t0 y n está en t1 (en el for).
+Las etiquetas (loop, fin) son nombres que elegimos y cada una debe ser única en el programa.
+
+C                              RISC-V
+-----------------------------------------------------------
+while (c) {                    loop:
+    A                              (salto a fin si c es falsa)
+}                                  A
+                                   j loop
+
+                               fin:
+
+-----------------------------------------------------------
+for (inicio; c; paso) {            inicio
+    A
+}                              loop:
+                                   (salto a fin si c es falsa)
+                                   A
+                                   paso
+                                   j loop
+
+                               fin:
+
+-----------------------------------------------------------
+
+Ej de lo anterior
+Ejemplo while:
+
+while (x < y) {              loop:
+    x = x + 1;                   bge  t0, t1, fin
+}                                addi t0, t0, 1
+                                   j    loop
+
+                             fin:
+
+-----------------------------------------------------------
+Ejemplo for:
+
+for (i = 0; i < n; i++) {        li   t0, 0
+    A
+}                            loop:
+                                  bge  t0, t1, fin
+                                   A
+                                   addi t0, t0, 1
+                                   j    loop
+
+                             fin:
+
+-----------------------------------------------------------
+
+
+
+Funciones:
+
+C                              RISC-V
+-----------------------------------------------------------
+Definir una función que NO llama a otras (función hoja):
+
+int f(int a, int b) {          f:
+    A                              A
+    return x;                      mv  a0, x	(si fuera return constante, se haría: li a0, constante)
+}                                  ret
+
+Donde a veces no es necesario hacer el mv o li, esto pasa cuando se hace return algo donde algo está ya guardado en a0.
+
+
+
+Cosas útiles:
+*Comparar punteros se hace con bltu o bgeu, es decir, sin signo.
+Ej: Sean los punteros a y t, si hacemos comparación entre a y t hay que usar bltu o bgeu
+
+*A veces operamos con *p, donde p es un puntero.
+En ese caso hay que guardar en un registro temporal esto y luego hacer la operación.
+Ej: s+=*p, hay que usar "Lectura y escritura en un puntero", así
+lw t2, 0(a0)
+add t0, t0, t2
+
+Donde asumimos que p está en a0 y que s está en t0
+
+*Cada vez que necesitamos hacer un cálculo intermedio hay que guardarlo en otro registro temporal.
+Ej: if ((e & 1) == 1), necesitamos tener (e & 1) y luego con eso ver la condición de == 1.
+Así que en t1 cargamos el (e & 1), de la forma andi t1, a1, 1.
+Donde asumimos que e está en a1.
+
+
+
+Desplazamiento aritmético y no aritmético:
+
+Tipo de x            x >> k           Instrucción
+int, short, char     con signo        srai t0, t1, k
+unsigned (cualquiera) sin signo       srli t0, t1, k
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
