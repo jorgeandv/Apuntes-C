@@ -1,4 +1,4 @@
-C2 Archivo---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Archivo---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Buffering: Leer un archivo en disco es muy lento comparado a leer la memoria RAM. Además, leer 1 byte toma casi el mismo tiempo que leer 8 KB (8000 bytes) porque el costo está en acceder al disco, no en cuántos bytes se traen.
 
@@ -492,7 +492,7 @@ Código de retorno: Es el número que retorna el main usando return.
 
 
 
-C2 Assembler---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Assembler---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Preprocesador de C: Es un programa que revisa el código antes de que el compilador lo traduzca, no entiende la lógica de C, solo hace sustituciones de texto según las instrucciones que le demos.
 
@@ -989,5 +989,156 @@ unsigned (cualquiera) sin signo       srli t0, t1, k
 
 
 
+
+Funciones y directivas de Assembler---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+call: Es una instrucción dentro de "llamadas a funciones", es similar a la instrucción j pero con call se recuerda de dónde se saltó para en un futuro poder volver, mientras que j solo salta.
+
+Al hacer call f, se guarda en el registro ra la dirección de vuelta (así se recuerda de dónde se saltó) y se salta a f.
+¿Cuándo se vuelve usando el ra?
+Cuando la función a la que se saltó (Ej: call f, sería f) tiene un ret, es decir, saltamos a una función y cuando esta termina con ret, volvemos a donde estábamos previo al salto a f.
+Ej: 
+main:
+    li   a0, 5
+    call f           # ra = dirección de "mv s0, a0"; salta a f
+    mv   s0, a0      # aquí se vuelve cuando f hace ret
+    ...
+
+f:
+    addi a0, a0, 1
+    ret              # salta a lo que diga ra -> vuelve a "mv s0, a0"
+
+
+Registros s0 a s11: Ya conocemos los registros a0 a a7 y t0 a t6, parámetros de una función y variables temporales, respectivamente.
+El problema de los registros anteriores es que al hacer call f, f puede sobreescribir esos registros y cuando volvemos a donde estábamos previo al salto a f ya no tenemos los registros "originales" y perdimos sus valores.
+
+La solución a lo anterior es usar los registros s0 a s11, llamados registros resguardados (callee-saved), los cuales mantienen su valor.
+¿Cómo mantienen su valor?
+Al hacer call f, f sí puede sobrescribir los registros s, pero está comprometida a guardar sus valores originales en el stack y antes del ret debe ponerle a los registros s (que sobreescribió) sus valores originales.
+
+¿Qué es el stack?
+El stack es una zona de la memoria RAM donde las funciones guardan datos temporalmente. También se le llama pila.
+
+Ej:
+# f(x) = x*x + x
+f:
+    addi sp, sp, -8      # reservo 8 bytes en el stack
+    sw   ra, 4(sp)
+    sw   s0, 0(sp)       # guardo en la memoria ubicada en sp el s0 de quien me llamó
+
+    mv   s0, a0          # guardo x en s0
+    call cuadrado        # a0 = x*x  (podría pisar t0-t6, a0-a7)
+    add  a0, a0, s0      # s0 sigue siendo x
+
+    lw   s0, 0(sp)       # restauro s0
+    lw   ra, 4(sp)
+    addi sp, sp, 8       # libero esos 8 bytes
+    ret
+
+cuadrado:
+    mul  a0, a0, a0
+    ret
+
+
+Registro de activación: Es el pedazo de stack que una función reserva para ella misma mientras se ejecuta, la forma de reservar ese pedazo de stack es 
+1) Reservar N bytes en el stack: addi sp, sp, -N
+Ej: addi sp, sp, -8
+
+2) Liberar N bytes en el stack: addi sp, sp, N
+Ej: addi sp, sp, 8
+
+
+
+Registro s0 (también llamado fp, frame pointer): Además de ser un registro resguardado, se usa para marcar dónde empieza el registro de activación cuando la función declara un arreglo local cuyo tamaño no se conoce en tiempo de compilación (porque en ese caso sp se mueve una cantidad que no se sabe de antemano).
+Ej de arreglo con tamaño sí conocido en tiempo de compilación: int d[5];
+Ej de arreglo con tamaño no conocido en tiempo de compilación: int d[a]; donde "a" es un parámetro de la función que crea al arreglo.
+
+
+
+Recordatorio del proceso de C a Assembler: 
+1) Escribimos código en C y lo compilamos.
+
+2) El compilador traduce ese código C a código assembler.
+
+3) El ensamblador traduce ese código assembler a código máquina.
+Acá se genera un archivo objeto que aún está incompleto pues no contiene las cosas que vienen de bibliotecas.
+
+4) El enlazador junta el archivo objeto con las bibliotecas necesarias y genera el ejecutable en el formato del sistema operativo (.exe en Windows y ELF en Linux).
+
+
+
+Directivas de sección: Son directivas que duran hasta que aparece otra directiva de sección.
+Las directivas de sección son 
+*.text: Código
+Ej en C: las funciones
+
+*.data (o .section .sdata): Datos inicializados
+Ej en C: int x = 5;   (variable global con valor inicial)
+
+*.bss (o .section .sbss): Datos no inicializados (empiezan en 0)
+Ej en C: int y;   (variable global sin valor inicial)
+
+*.section .rodata: Datos de solo lectura
+Ej en C: "hola", const int k = 3;   (strings y constantes)
+
+
+
+Directivas de no sección: Son directivas que afectan a una cosa puntual.
+Las directivas de no sección son
+*.globl f: Declara una etiqueta global (visible desde otros archivos)
+  Ej en C: una función o variable global sin static
+
+*.align n: Alinea lo siguiente a una dirección múltiplo de 2^n
+Ej: .align 2  -> múltiplo de 4
+
+*.word v: Reserva 4 bytes con valor v
+Ej en C: int x = 5;   ->   x: .word 5
+
+*.half v: Reserva 2 bytes con valor v
+Ej en C: short s = 3;   ->   s: .half 3
+
+*.byte v: Reserva 1 byte con valor v
+Ej en C: char c = 'a';   ->   c: .byte 97
+
+*.string "...": Guarda un string constante (termina en \0)
+Ej en C: "hola"   ->   .string "hola"
+
+*.zero n: Reserva n bytes en cero
+Ej en C: int y;   ->   y: .zero 4
+
+*.type f, @function: Indica que la etiqueta f es una función
+
+*.type g, @object: Indica que la etiqueta g es una variable global
+
+
+
+Ejemplo de directivas:
+Código C:
+  int x = 5;        // global con valor inicial
+  int y;            // global sin valor inicial
+  int suma(int a) { return a + x; }
+
+Assembler:
+    .data               # sección de datos inicializados
+    .globl x            # x visible desde otros archivos
+    .align 2            # alinear x a múltiplo de 4
+
+x:  .word 5             # int x = 5
+
+    .bss                # sección de datos no inicializados
+    .align 2
+
+y:  .zero 4             # int y; (4 bytes en cero)
+
+    .text               # sección de código
+    .globl suma         # suma visible desde otros archivos
+
+suma:
+    lui  a5, %hi(x)     # cargar dirección de x
+    lw   a5, %lo(x)(a5) # a5 = x
+    add  a0, a0, a5     # a0 = a + x
+    ret
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

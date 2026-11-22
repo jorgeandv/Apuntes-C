@@ -1,0 +1,1931 @@
+Circuitos---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Circuitos digitales: Ya vimos que Assembler es un lenguaje de muy bajo nivel, pero aún queda algo de nivel más bajo, circuitos digitales.
+
+Un circuito digital es un circuito electrónico, donde su pieza básica son las compuertas lógicas que calculan una operación simple.
+
+Podemos ver los circuitos digitales a nivel físico y a nivel lógico.
+*Circuitos digitales a nivel físico: En el chip real, hay cables que pueden o no tener voltaje.
+Donde se usan 0 V (conectado a tierra) o 1,2 V (conectado al polo positivo).
+
+¿Qué es un chip?
+Es una pieza pequeña de silicio, del tamaño de una uña o menos, que tiene dentro un circuito digital completo. En ese circuito digital están los transistores, las compuertas y los cables (microscópicos).
+
+*Circuitos digitales a nivel lógico: En los diagramas de circuitos y en tablas no se habla de volts, solo de 0 y 1.
+Las compuertas se dibujan distinto según la compuerta y los cables son líneas.
+Los transistores no aparecen.
+
+
+
+Compuertas lógicas: Permiten calcular las operaciones lógicas básicas AND, OR y NOT. Con esas operaciones básicas se puede construir cualquier otra operación lógica XOR, sumador, restador, etc. 
+
+En iPad están los diagramas de circuito donde se ven las compuertas lógicas y su forma de dibujarlas.
+
+
+
+Módulos aritméticos: Son como funciones, pues reciben entradas y devuelven un resultado sin que nosotros sepamos qué hacen por dentro, lo único que sabemos es que dentro tienen compuertas lógicas y que hay que indicar cuántos bits tiene la entrada del módulo.
+Los módulos son
+* Sumador: Recibe dos números y entrega la suma. Es el encadenamiento de sumadores de bits.
+* Restador: Recibe dos números y entrega la resta.
+
+* Multiplicador: Recibe dos números y entrega la multiplicación. Se considera "caro" porque necesita muchísimas compuertas (ocupa mucho espacio en el chip).
+* Divisor: Recibe dos números y entrega la división. Se considera "lento" porque el resultado se calcula en varios pasos y tarda en estar listo.
+
+* Desplazador: Recibe dos números, donde un número indica el que se quiere desplazar y el otro número indica en cuánto se desplaza (en bits).
+
+* Comparador: Recibe dos números y tiene tres salidas (menor, igual, mayor). Sale un 1 solo en la salida que corresponde al resultado de la comparación.
+
+En iPad está cómo se ven los módulos en los diagramas de circuito.
+
+
+
+Módulos de memoria: Son módulos que guardan valores y los recuerdan en el tiempo.
+Hay tres módulos de memoria, registros, ROM, RAM.
+
+
+
+Registros: Es un módulo de memoria que guarda un valor. Sus pines son
+*D: Es un pin donde entra el dato que se quiere guardar
+
+*en: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar"). 
+Si entra un 0, el registro no guarda el dato que entró en D.
+Si entra un 1 (o "sin conectar"), el registro sí guarda el dato que entró en D (en el momento en que el reloj pasa de 1 a 0).
+
+*clk (Triángulo): Es un pin donde entra el reloj, el cual es una señal que cambia sola entre 0 y 1.
+
+*Q: Es un pin donde sale el último valor guardado por el registro.
+
+Si en=1, ¿Cuándo se guarda el dato que entró en D?
+Se guarda cuando el reloj está en falling edge, es decir, cuando pasa de 1 a 0. Esto hay que configurarlo en Logisim.
+ 
+Dibujo de registro en iPad.
+
+
+
+RAM: Es un módulo de memoria que puede guardar muchos valores, donde cada valor va en una dirección. Se puede leer y escribir en la RAM (como en un arreglo). Se puede configurar cómo se conectan los datos a la RAM, hay tres configuraciones posibles
+
+*One synchronous load/store port (un puerto sincrónico de carga/almacenamiento): Tiene los pines
+ *A: Es un pin donde entra la dirección del dato que se quiere leer o escribir.
+ 
+ *D (en la derecha): Es un pin donde entra el dato que se quiere guardar en A o donde sale el dato que está guardado en A. Depende del out.
+ 
+ *Triángulo: Es un pin donde entra el reloj, el cual es una señal que cambia sola entre 0 y 1.
+ 
+ *out: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar").
+ Si entra un 0, la RAM escribe el dato que entra por D y lo guarda en A
+ Si entra un 1 (o "sin conectar"), la RAM lee el dato que está guardado en A y este dato sale por D
+ 
+Si out=0, ¿Cuándo se escribe el dato que entró en D?
+Se guarda cuando el reloj está en falling edge, es decir, cuando pasa de 1 a 0. Esto hay que configurarlo en Logisim.
+
+ *sel: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar").
+Si entra un 0, la memoria de la RAM queda apagada, así que no se lee ni se escribe nada.
+Si entra un 1 (o "sin conectar"), la memoria de la RAM queda encendida, funciona normalmente
+Ej: Cuando un circuito tiene varias memorias RAM conectadas a los mismos cables y necesitamos elegir cuál usar en cada momento, usamos el sel.
+
+ *clr: Es un pin donde puede entrar un 0 (o "sin conectar") o un 1. Actúa como un botón de borrado.
+Si entra un 0 (o "sin conectar"), no pasa nada
+Si entra un 1, se borra toda la memoria de la RAM (todos los datos en sus respectivas direcciones)
+
+
+*One asynchronous load/store port (un puerto asincrónico, sin reloj): Tiene los mismos pines que "One synchronous load/store port (un puerto sincrónico de carga/almacenamiento)" pero no tiene reloj.
+
+Si no tiene reloj ¿Cuándo se escribe el dato que entró en D?
+Se guarda al instante y de forma continua, apenas out=0, el dato que entró en D se guarda en A.
+
+
+*Separate load and store ports (puertos separados, con reloj): Tiene los mismos pines que "One synchronous load/store port (un puerto sincrónico de carga/almacenamiento)" pero ahora hay dos D, uno en la izquierda y uno en la derecha.
+ *A: Es un pin donde entra la dirección del dato que se quiere leer o escribir.
+
+ *D (en la izquierda): Es un pin donde entra el dato que se quiere guardar en A.
+
+ *D (en la derecha): Es un pin donde sale el dato que está guardado en A.
+
+ *Triángulo: Es un pin donde entra el reloj, el cual es una señal que cambia sola entre 0 y 1.
+
+ *str: Es un pin donde puede entrar un 0 o un 1.
+Si entra un 0, la RAM no escribe nada
+Si entra un 1, la RAM escribe el dato que entra por D (en la izquierda) y lo guarda en A
+
+Si str=1, ¿Cuándo se escribe el dato que entró en D (en la izquierda)?
+Se guarda cuando el reloj está en falling edge, es decir, cuando pasa de 1 a 0. Esto hay que configurarlo en Logisim.
+
+ *out: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar").
+Si entra un 0, la RAM no hace nada y el dato no sale por D (en la derecha)
+Si entra un 1 (o "sin conectar"), la RAM lee el dato que está guardado en A y este dato sale por D (en la derecha)
+
+ *sel: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar").
+Si entra un 0, la memoria de la RAM queda apagada, así que no se lee ni se escribe nada
+Si entra un 1 (o "sin conectar"), la memoria de la RAM queda encendida, funciona normalmente
+
+ *clr: Es un pin donde puede entrar un 0 (o "sin conectar") o un 1. Actúa como un botón de borrado.
+Si entra un 0 (o "sin conectar"), no pasa nada
+Si entra un 1, se borra toda la memoria de la RAM (todos los datos en sus respectivas direcciones)
+
+
+¿Por qué en el registro el pin donde va el reloj se llama clk pero en la RAM no tiene nombre?
+En verdad es el mismo pin, sólo que en el registro se le da el nombre de "clk".
+
+
+
+ROM: Es un módulo de memoria que puede guardar muchos valores, donde cada valor va en una dirección. Solo se puede leer en la ROM (como en un arreglo const), así que los datos se cargan antes de usar el circuito y no cambian.
+Sus pines son
+*A: Es un pin donde entra la dirección del dato que se quiere leer.
+
+*D: Es un pin donde sale el dato que está guardado en A.
+
+ *sel: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar").
+Si entra un 0, la memoria de la ROM queda apagada, así que no se lee nada
+Si entra un 1 (o "sin conectar"), la memoria de la ROM queda encendida, funciona normalmente
+
+
+
+Multiplexor sin enable: Funciona como un if en un circuito.
+Sus pines son
+*Entradas: Son pines donde entran datos (en cada pin de entrada entra un dato).
+
+*Selector: Es un pin donde entran bits y según esos bits elige cuál de las entradas pasa a la salida
+Dependiendo de su cantidad de bits, aumenta o disminuye la cantidad de pines de entradas.
+
+*Salida: Es un pin donde sale el dato de la entrada elegida por el selector
+
+Lo que hace es
+1) Las entradas se enumeran del 0 en adelante.
+Ej: Entrada 0, Entrada 1, Entrada 2, ...
+
+2) El selector recibe un número binario (los bits que entran), ese número binario se pasa a decimal.
+Ej: El selector es de 2 bits y selector = 10, es decir, es 2 en decimal
+
+3) La entrada enumerada con ese decimal es la que pasa a la salida, es decir, por la salida sale el dato de esa entrada.
+Ej: Por la salida sale el dato de la Entrada 2.
+
+Por eso es que 
+*Si en el selector entra 1 bit, hay 2 entradas (decimales 0 y 1)
+*Si en el selector entran 2 bits, hay 4 entradas (decimales 0, 1, 2, 3)
+*Si en el selector entran 3 bits, hay 8 entradas (decimales 0, 1, 2, 3, 4, 5, 6, 7)
+...
+
+
+
+Multiplexor con enable: Es lo mismo y tiene los mismos pines que "Multiplexor sin enable" pero también tiene el pin de enable.
+*enable: Es un pin donde puede entrar un 0 o un 1 (o "sin conectar").
+Si entra un 0, el multiplexor está desactivado.
+Si entra un 1 (o "sin conectar"), el multiplexor está activado.
+
+En Logisim se puede configurar el Disabled Output del multiplexor, que es qué hay en la salida del multiplexor cuando está desactivado (enable = 0).
+Si el Disabled Output es Floating, la salida es indefinida
+Si el Disabled Output es Zero, la salida vale 0
+
+
+
+Túnel: Es una forma de conectar dos puntos del circuito sin dibujar el cable entre ellos.
+Esto permite un mejor orden del diagrama de circuito y llevar la misma señal a muchos lugares.
+
+Ejemplo de túnel en iPad.
+
+
+
+Ciclo: Un ciclo es el tiempo que pasa entre dos bajadas seguidas del reloj (va de 1 a 0).
+El reloj va haciendo 0,1,0,1, ...
+clk:   1 ┐         ┌───┐         ┌───┐          ┌───┐
+         │         │    │         │    │          |    │
+       0 └───────┘    └───────┘    └───────┘     └──
+         ↓               ↓               ↓               ↓
+         │    ciclo 1    │    ciclo 2   │   ciclo 3     │ ...
+
+
+
+Visor: Es un componente que solo muestra el valor que pasa por un cable, sin afectar al circuito.
+En Logisim se llama Ver (está en la carpeta Wiring) y tiene forma rectangular con las esquinas redondeadas y el borde es de un color gris claro.
+
+
+
+Rellenar tablas: 
+*Cuando la columna tiene el nombre de un módulo, se rellena con lo que sale de ese módulo.
+
+*Cuando la columna tiene el nombre de un visor, se rellena con el valor que pasa por el cable donde está el visor.
+
+*Cuando la columna tiene el nombre de un pin, se rellena con el valor de ese pin (lo que entra, si es de entrada; lo que sale, si es de salida).
+
+Recordar:
+*Lo que usa reloj (registros, escritura en RAM) guarda al final del ciclo, así que el valor nuevo se ve recién en el ciclo siguiente.
+
+*Lo que no usa reloj (sumador, compuertas, MUX, comparador...) se calcula con los valores del mismo ciclo.
+
+
+
+Construir circuitos digitales de verdad: Para construir circuitos digitales de verdad (sin usar Logisim) tenemos tres formas principales
+*Protoboard: Es una placa con agujeros conectados por dentro, donde se pinchan chips y cables a mano, sin soldar.
+
+*FPGAs (Field Programmable Gate Arrays): Es un chip que trae miles de compuertas y memoria sin conectar, y nosotros programamos cómo se conectan desde el computador (es como un Logisim físico).
+
+*ASICs (Application Specific Integrated Circuit): Es un chip fabricado a medida para una tarea específica. El circuito se graba físicamente en el silicio, así que no se puede cambiar después.
+Ej: TSMC es una empresa de Taiwán que fabrica los chips de marcas como Apple, Nvidia, AMD, etc.
+
+
+
+HDL (Hardware Description Language): Es un lenguaje para describir un circuito, es parecido a un lenguaje de programación pero no genera instrucciones.
+Un programa (Ej: Las herramientas de Synopsys) lee el HDL y lo pasa al circuito con compuertas y cables.
+
+Para circuitos grandes, es mucho más práctico escribir HDL que hacer el dibujo directamente. 
+
+
+
+Construcción de transistores: Los transistores se construyen grabando capas de distintos materiales (Ej: metal, polisilicio, zonas tratadas del silicio) una encima de la otra sobre el chip.
+
+
+
+Ley de Moore: Es una observación de Gordon Moore que dice que cada aproximadamente 2 años se duplica la cantidad de transistores que caben en la misma superficie de un chip.
+No sabemos hasta cuándo se seguirá cumpliendo la Ley de Moore porque los transistores actuales son tan chicos que se acercan a límites físicos.
+Además, cada vez es más caro hacer un transistor.
+
+
+
+Litografía: Es el proceso con el que se graban las capas de un chip.
+1) Preparar la oblea: Se parte de una oblea (wafer): un disco delgado de silicio donde se fabrican muchos chips a la vez. Encima se ponen capas de materiales (dióxido de silicio, nitruro de silicio) y arriba una capa de fotorresina (photoresist), un material que cambia cuando le llega luz.
+
+2) Proyectar la luz a través de una máscara: Un láser ultravioleta profundo (Deep Ultraviolet, de 193 nm de longitud de onda) pasa por una máscara (reticle), que es como un esténcil con el dibujo de una capa del circuito. Un lente achica esa imagen y la proyecta sobre la oblea, repetida muchas veces (una por cada chip).
+
+3) Quitar la fotorresina expuesta: Las partes de fotorresina que recibieron luz cambian y se eliminan. Queda la fotorresina solo donde la máscara tapaba la luz.
+
+4) Grabar con gases: Unos gases corroen (graban) las zonas que quedaron sin protección de fotorresina. Así el dibujo de la máscara queda tallado en el material.
+
+5) Bombardear con iones (dopado): Se lanzan iones sobre las zonas grabadas para “doparlas”, así se cambian las propiedades eléctricas del silicio en esos lugares. Esas zonas dopadas son las que forman los transistores.
+
+6) Repetir: Se pone nueva fotorresina y se repiten los pasos 2 a 5 muchas veces, una por cada capa. Al final, el mismo ciclo se usa para poner capas de metal que funcionan como los cables que conectan los transistores.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Memoria Caché---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CPU vs Arquitectura: 
+*CPU: Es el chip físico que ejecuta los programas.
+*Arquitectura: No es un chip, sino una especificación, es decir, un contrato que dice cómo se codifican en binario las instrucciones de máquina.
+
+Ej: Ya vimos la arquitectura de RISC-V
+
+
+
+Recordatorio del proceso de C a Assembler: 
+1) Escribimos código en C y lo compilamos.
+
+2) El compilador traduce ese código C a código assembler.
+
+3) El ensamblador traduce ese código assembler a código máquina.
+Acá se genera un archivo objeto que aún está incompleto pues no contiene las cosas que vienen de bibliotecas.
+
+4) El enlazador junta el archivo objeto con las bibliotecas necesarias y genera el ejecutable en el formato del sistema operativo (.exe en Windows y ELF en Linux).
+
+
+
+Compatibilidad binaria: Muchas CPUs distintas pueden implementar la misma arquitectura.
+Si dos CPUs tienen la misma arquitectura y usan el mismo sistema operativo, el ejecutable generado en el paso 4) para una de ellas funciona tal cual en la otra. 
+
+Así, no hace falta volver al paso 1) para generar un ejecutable nuevo a partir del código fuente.
+
+Ej: Una CPU AMD y una CPU Intel implementan la misma arquitectura llamada x86 aunque cada CPU es distinta.
+Así, un .exe de Windows funciona igual en un AMD que en un Intel.
+
+
+
+Plataforma: El ejecutable de un programa depende de la arquitectura y del sistema operativo.
+Ej: Ya vimos la compatibilidad binaria (misma arquitectura y mismo sistema operativo).
+
+El sistema operativo importa porque cada sistema operativo necesita que el programa le pida cosas de cierta forma, el formato del ejecutable es distinto, y las bibliotecas son distintas.
+
+En lo anterior entra el concepto de plataforma, se llama plataforma a la combinación de arquitectura y sistema operativo, así plataforma = sistema operativo + arquitectura.
+Ej: La plataforma Windows/x86-64
+
+
+
+Emulador de programa: Es un programa que se utiliza para poder correr programas hechos para una arquitectura en una CPU que tiene otra arquitectura.
+
+Lo que hace es traducir cada instrucción de la arquitectura foránea a instrucciones de la arquitectura anfitriona mientras el programa corre y cuando el programa le pide algo al sistema operativo, el emulador traduce ese pedido para el sistema operativo anfitrión.
+
+Ej: qemu-riscv32 ejecuta programas de Linux/RISC-V en un PC con Linux/x86.
+
+
+
+Emulador de máquina: Es un programa que se utiliza para poder correr programas hechos para una arquitectura en una CPU que tiene otra arquitectura.
+
+Lo que hace es simular un computador entero (CPU, memoria, disco, pantalla, ...) de la arquitectura foránea, traduciendo cada instrucción a instrucciones de la arquitectura anfitriona mientras el programa corre y cuando el programa le pide algo al sistema operativo, ese pedido lo atiende un sistema operativo de la arquitectura foránea instalado dentro del emulador, no el sistema operativo anfitrión.
+
+Ej: qemu-system-riscv32 ejecuta programas de Linux/RISC-V en un PC con Windows/x86.
+
+
+
+Microarquitectura: Es cómo está construido el chip a nivel de circuitos para que pueda entender su respectiva arquitectura.
+Ej: Intel y AMD tienen la misma arquitectura x86 pero tienen distintas microarquitecturas.
+
+
+
+Thread: Es una secuencia de instrucciones que se está ejecutando.
+Ej: Un programa tiene al menos un thread.
+
+
+
+Core: Es la unidad dentro del chip capaz de ejecutar un thread.
+Ej: Una CPU moderna tiene varios cores, así que puede ejecutar varios threads al mismo tiempo (un thread por cada core)
+
+Intel tiene una tecnología llamada hyperthreading que permite que un core ejecute 2 threads (en vez de solo 1), esto no duplica la velocidad pero aprovecha mejor el core.
+
+Las características principales de un core son
+*Área: Cuánto espacio ocupa el core en el chip. Más área significa más costo, y el costo crece más rápido que el área, porque en un chip grande es más probable que haya un defecto de fabricación que lo arruine.
+
+*Frecuencia (GHz): Cuántos ciclos por segundo da el core. Más frecuencia significa más velocidad, pero también más consumo y calor.
+
+*Potencia (watts): Cuánta energía por segundo consume el core. Importa para la fuente de poder y el calor. 
+
+*IPC: El promedio de cuántas instrucciones completa el core en cada ciclo del reloj. Un core mejor diseñado logra más IPC.
+
+*Eficiencia energética: Cuánto trabajo hace el core por cada joule.
+
+Así, la velocidad del core es velocidad = frecuencia * IPC.
+Lo anterior implica que un core a 3 GHz puede ser más rápido que un core a 4 GHz si su IPC es bastante más grande.
+
+Cuando se habla de la CPU, hay algunas características que se refieren a cada core y otras que hay que sumarlas.
+*El área de la CPU es la suma de las áreas de los cores más el resto del chip.
+
+*La potencia de la CPU es la suma de la potencia de los cores más la del resto del chip (memorias caché, controlador de memoria, gráficos integrados, ...).
+
+*La frecuencia de la CPU es la frecuencia que tiene cada core (no hay que sumar).
+
+*El IPC de la CPU es el IPC que tiene cada core (no hay que sumar).
+
+*La eficiencia energética de la CPU es la eficiencia energética que tiene cada core (no hay que sumar).
+
+
+
+Problema de velocidad y eficiencia: Hacer un core más rápido requiere hacer circuitos más grandes y complejos, lo que es más caro y gasta más energía por cada instrucción.
+
+Intel tiene una tecnología llamada Intel Alder Lake que combina dos tipos de cores en el mismo chip
+*Cores Golden Cove: Son cores grandes, rápidos y con hyperthreading, se utilizan para tareas pesadas como juegos o al compilar.
+*Cores Gracemont: Son cores pequeños y eficientes, se utilizan para tareas livianas o que están de fondo.
+Luego, el sistema operativo decide qué thread va a cada tipo de core.
+
+
+
+Die: Es el pedazo de silicio donde están los circuitos de la CPU (los cores, la memoria caché, ...).
+Lo que vemos al comprar una CPU es el encapsulado (placa metálica y verde) el cual protege al die y tiene los pines para conectarlo a la placa madre.
+
+
+
+Evolución de la organización del circuito del core: A lo largo del tiempo ha evolucionado el cómo se organiza el circuito del core y por ende el cómo se procesan las instrucciones.
+*Microprogramación (hasta fines de los 80): Cada instrucción usa varios ciclos y la siguiente instrucción no empieza hasta que termina la anterior.
+
+*Pipeline (principios de los 80): Es como la cadena de montaje de Ford.
+El core se divide en etapas y cada etapa trabaja en una instrucción distinta al mismo tiempo.
+
+*Superescalar (principios de los 90): Varios pipelines trabajando en paralelo, así se terminan n instrucciones por ciclo.
+
+*Ejecución especulativa y fuera de orden (mediados de los 90): Varias unidades de ejecución en paralelo.
+Cada instrucción se ejecuta apenas tiene listos sus datos, sin respetar el orden del programa.
+
+
+
+Problema de la velocidad de la memoria: Ya vimos que los cores se hicieron muy rápidos, pero un core necesita instrucciones y datos para trabajar, y estas cosas están en la memoria.
+El problema es que la memoria no es tan rápida como el core y lo frena.
+
+
+
+DRAM (RAM): Es la memoria donde se guardan los programas y sus datos mientras se ejecutan, donde cada bit se guarda como una pequeña carga eléctrica en un condensador.
+Se le dice memoria dinámica porque esa carga se va perdiendo y hay que recargarla constantemente.
+
+Es rápida pero no lo suficiente para el core.
+
+
+
+Memoria Flash (SSD): Es la memoria donde se guardan los archivos y programas instalados de forma permanente, donde cada bit se guarda atrapando electrones en un transistor aislado eléctricamente.
+Se le dice memoria flash porque no se puede borrar un bit suelto, sino que se borra un bloque completo de una sola vez y los datos no se pierden.
+
+Es más lenta que la DRAM.
+
+
+
+Disco duro (HDD): Es la memoria donde se guardan los archivos y programas instalados de forma permanente, donde cada bit se guarda magnetizando una pequeña zona de un disco que gira y un brazo con un cabezal (como el de un tocadiscos) se mueve físicamente hasta esa zona para leerla o escribirla.
+
+Se le dice disco duro porque guarda los datos en discos rígidos y los datos no se pierden.
+
+Es más lenta que la SSD.
+
+
+
+SRAM: Es un tipo de memoria más rápida que la DRAM pues en vez de guardar cada bit en un condensador que se descarga, guarda cada bit en un pequeño circuito de 6 transistores que mantiene el valor mientras tenga energía.
+
+
+
+Memoria caché: Es una SRAM pequeña ubicada dentro del chip de la CPU.
+Como es pequeña, no le cabe toda la memoria de un programa, así que lo que guarda es una copia de una pequeña parte de lo que tiene la DRAM. 
+Si el core necesita un dato y este está en la memoria caché, lo obtendrá rápido de la memoria caché.
+Si el core necesita un dato y este no está en la memoria caché, lo obtendrá lento de la RAM.
+
+¿Cómo la memoria caché sabe qué datos guardar?
+Los programas tienen dos comportamientos muy predecibles al acceder a la memoria, la localidad temporal y la localidad espacial.
+*Localidad temporal: Si un programa usó un dato, es muy probable que lo vuelva a usar pronto, así que se guarda en la memoria caché.
+Ej: En un ciclo for, la variable de iteración se usa una y otra vez así que se guarda en la memoria caché.
+
+*Localidad espacial: Si un programa usó un dato, es muy probable que use pronto los datos que en la memoria están al lado de la memoria ese dato, así que se guarda en la memoria caché.
+Ej: Al recorrer un arreglo, los elementos están uno al lado de otro, así que cuando se accede a un dato del arreglo conviene guardar a los datos vecinos en la memoria caché.
+
+
+
+KB y Byte: 1 KB son 1024 Bytes (Hay que usar regla de 3 simples).
+
+
+
+Cómo funciona una memoria caché de 64 KB de 1 grado de asociatividad con líneas de 16 bytes:
+*M[L]:
+La DRAM no se copia en la memoria caché byte por byte, sino que se copia en bloques de 16 bytes llamados líneas.
+
+Así, cuando el programa necesita un dato, se copia en la caché la línea completa donde está ese dato (Se toman 16 bytes de la DRAM y se pegan esos 16 bytes en la memoria caché).
+Ej de las líneas: 
+La línea 0 de la DRAM son los bytes de 0 a 15 de la DRAM
+La línea 1 de la DRAM son los bytes de 16 a 31 de la DRAM
+...
+
+A la línea L de la DRAM se le llama M[L].
+
+
+*C:
+La memoria caché es de 64 KB y como cada línea de la DRAM mide 16 bytes, caben (64*1024)/16 = 4096 líneas en la memoria caché.
+Al número de líneas que caben en la memoria caché se les llama C, donde C siempre es una potencia de 2, en este caso 4096 = 2¹².
+
+¿Por qué C siempre es una potencia de 2?
+Porque así calcular L%C (lo vemos a continuación) equivale a quedarse con los 12 bits menos significativos de L.
+
+Es decir, la memoria caché tiene C casilleros, y en cada uno se puede guardar una línea copiada de la DRAM.
+
+
+*C[LC]:
+Al casillero número LC de la memoria caché se le llama C[LC] con LC entre 0 y C-1.
+
+
+*L:
+Si un dato está en la dirección D en la DRAM, entonces está en la línea L = D/16 (división entera) en la DRAM y el resto de la división (el D%16) indica el byte exacto en el que está el dato dentro de su respectiva línea.
+
+
+*LC:
+La línea anterior solo puede guardarse en la memoria caché en el casillero número LC = L%C.
+
+
+*E[LC]:
+Como hay más líneas en la DRAM que casilleros en la memoria caché, entonces varias líneas comparten el mismo casillero, pero en ese casillero solo se puede guardar una línea a la vez.
+Ej: Las líneas 279 y 4375 tienen LC=279, así que ambas líneas se pueden guardar en C[279] pero solo una a la vez.
+
+¿Cómo sabe la memoria caché qué línea de la DRAM está guardada en un casillero?
+Cada vez que la memoria caché guarda una línea en un casillero, anota al lado el número de esa línea.
+Esa anotación es la etiqueta E[LC].
+Ej: Si en C[279] se guardó la línea 4375, entonces E[279]=4375.
+
+
+*A[LC]: Es un bit que se guarda junto a cada casillero C[LC] e indica si la línea guardada en ese casillero fue modificada desde que se copió de la DRAM.
+ *A[LC] = falso: La línea guardada en el casillero C[LC] es igual a la línea en la DRAM (no fue modificada)
+ *A[LC] = verdadero: La línea guardada en el casillero C[LC] no es igual a la línea en la DRAM (sí fue modificada)
+
+
+*Acierto: Cuando el programa quiere acceder a un dato que está en la línea L de la DRAM, se calcula el número de casillero de la memoria caché LC = L%C y se revisa la etiqueta del casillero LC.
+Es un acierto ssi E[LC] = L, es decir, si la línea buscada ya está en la memoria caché.
+
+
+*Desacierto: Cuando el programa quiere acceder a un dato que está en la línea L de la DRAM, se calcula el número de casillero de la memoria caché LC = L%C y se revisa la etiqueta del casillero LC.
+Es un desacierto ssi E[LC] ≠ L, es decir, si la línea buscada no está en la memoria caché.
+Lo anterior significa que en C[LC] hay otra línea, es decir, E[LC] = L'.
+
+Como en el casillero cabe una sola línea, hay que sacar L' para poner L, esto se hace en tres pasos:
+1)Se revisa A[LC]
+ *Si A[LC] = falso, se omite el paso 1).
+ *Si A[LC] = verdadero, significa que la línea L' en C[LC] es distinta de M[L'].
+ Se escribe en M[L'] lo que está guardado en C[LC] para que la DRAM quede actualizada antes de borrar L' de la memoria caché.
+
+2) Se copia lo que está en M[L] desde la DRAM en el casillero C[LC]. Así, L' queda reemplazada por L.
+
+3) Ahora E[LC] = L y A[LC] = falso.
+
+
+*Acceso: Es el momento en que finalmente se lee o se escribe el dato que pidió el programa.
+ *Si el programa quiere leer: Se lee el dato que está guardado en C[LC] y se le entrega al programa.
+ *Si el programa quiere escribir: Se escribe el dato en C[LC].
+ Ahora se tiene A[LC] = verdadero.
+
+
+
+Cómo funciona una memoria caché de 256 KB de 4 grados de asociatividad con líneas de 16 bytes:
+Esta memoria caché se construye juntando 4 memorias caché de 64 KB, cada una de esas memorias es como las que vimos en "Cómo funciona una memoria caché de 64 KB de 1 grado de asociatividad con líneas de 16 bytes".
+
+Así, cada una de las 4 memorias caché tiene sus propios C[LC], sus propias etiquetas E[LC], sus propios bits A[LC], ... .
+Para diferenciar cada cosa entre las memorias caché hay que usar subíndices.
+Ej: C₁[LC], C₂[LC], C₃[LC] y C₄[LC].
+
+
+*En dónde de la memoria caché puede guardarse una línea de la DRAM:
+L y LC se calculan igual que antes, la diferencia es que la línea L puede guardarse en el casillero número LC de cualquiera de las 4 memorias caché, pero solo en una de ellas a la vez.
+Ej: La línea 4375 tiene LC = 279, así que puede guardarse en C₁[279], C₂[279], C₃[279] o C₄[279].
+
+Por eso se dice que se tienen 4 grados de asociatividad.
+
+
+*Acierto: Cuando el programa quiere acceder a un dato que está en la línea L de la DRAM, se calcula el número de casillero de la memoria caché LC = L%C y se revisan las etiquetas del casillero LC en las 4 memorias caché.
+Es un acierto ssi E₁[LC] = L o E₂[LC] = L o E₃[LC] = L o E₄[LC] = L (alguna de las 4 etiquetas es igual a L), es decir, si la línea buscada ya está en alguna memoria caché.
+
+La revisión anterior se hace en paralelo en las 4 memorias caché (no una después de otra).
+
+
+*Desacierto: Cuando el programa quiere acceder a un dato que está en la línea L de la DRAM, se calcula el número de casillero de la memoria caché LC = L%C y se revisan las etiquetas del casillero LC en las 4 memorias caché.
+Es un desacierto ssi E₁[LC] ≠ L y E₂[LC] ≠ L y E₃[LC] ≠ L y E₄[LC] ≠ L (ninguna de las 4 etiquetas es igual a L), es decir, si la línea buscada no está en ninguna memoria caché.
+
+Como en el casillero cabe una sola línea, hay que sacar L' para poner L.
+Para esto se elige pseudo aleatoriamente una de las 4 memorias caché y en su casillero LC se hace el reemplazo con los mismos 3 pasos que vimos en "Cómo funciona una memoria caché de 64 KB de 1 grado de asociatividad con líneas de 16 bytes".
+
+La ventaja de esta memoria caché en comparación a la de "Cómo funciona una memoria caché de 64 KB de 1 grado de asociatividad con líneas de 16 bytes" es que ahora hay menos desaciertos pues la memoria es más grande (tiene más memoria caché) pero mientras más grande es, más tiempo toma cada acceso porque se tiene una SRAM más grande.
+
+
+
+Jerarquía de cachés: Cuando el programa necesita un dato, se busca en orden, de la caché más pequeña y rápida a la más grande y lenta.
+
+
+
+Grados  de asociatividad: A igual tamaño de caché, más grados de asociatividad significa menos desaciertos.
+A partir de 16 grados de asociatividad, la mejora es mínima.
+
+
+
+Memorias caché: Ya vimos el concepto de memoria caché, pero lo vimos asumiendo de que hay una sola memoria caché entre el core y la DRAM pero en verdad hay varias memorias caché en fila, donde cada memoria es de distinto tamaño.
+El proceso es core -> caché L1 -> caché L2 -> caché L3 -> DRAM
+
+Donde
+*Caché L1: Es de 32 KB, es de 3 o 4 ciclos y tiene 2 o 4 grados de asociatividad. Es la primera en la que se busca.
+*Caché L2: Es de 512 KB, es de 10 ciclos y tiene 8 grados de asociatividad. Se va a buscar ahí solo si hubo desacierto en L1.
+*Caché L3: Es de 8 MB, es de 30 ciclos y tiene 16 grados de asociatividad. Se va a buscar ahí solo si hubo desacierto en L2.
+*DRAM: Su tamaño depende del computador. Se va a buscar ahí solo si hubo desacierto en L3
+
+¿A qué se refiere con ciclos?
+Los ciclos en la memoria indican cuántos ciclos tiene que esperar el core para obtener un dato de esa memoria caché.
+
+Además, el caché L1 se separa en L1I y L1D, donde
+*L1I: Guarda solo las instrucciones del programa
+*L1D: Guarda solo los datos del programa
+
+L1 se separa para que el core pueda leer una instrucción y un dato en el mismo ciclo sin que compitan por la misma memoria caché.
+
+Cada core tiene su propia caché L1 y L2, pero la caché L3 es compartida por grupos de 4 u 8 cores. 
+
+
+
+Cómo funciona una memoria caché de 8 KB de 2 grados de asociatividad con líneas de 16 bytes:
+Esta memoria caché se construye juntando 2 memorias caché de 4 KB, llamadas bancos, y cada uno de esos bancos es como la memoria caché que vimos en "Cómo funciona una memoria caché de 64 KB de 1 grado de asociatividad con líneas de 16 bytes", pero más pequeña.
+
+Como cada banco es de 4 KB y cada línea de la DRAM mide 16 bytes, en cada banco caben (4 × 1024)/16 = 256 líneas, es decir, C = 256 en cada banco.
+
+Así, cada uno de los 2 bancos tiene sus propios C[LC], sus propias etiquetas E[LC], sus propios bits A[LC], ... .
+Para diferenciar cada cosa entre los bancos hay que usar subíndices.
+Ej: C₁[LC] y C₂[LC].
+
+
+*En dónde de la memoria caché puede guardarse una línea de la DRAM:
+L y LC se calculan igual que antes, la diferencia es que la línea L puede guardarse en el casillero número LC de cualquiera de los 2 bancos, pero solo en uno de ellos a la vez.
+Ej: La línea 0x53b tiene LC = 0x53b % 256 = 0x3b, así que puede guardarse en C₁[3b] o C₂[3b].
+
+Por eso se dice que se tienen 2 grados de asociatividad.
+
+
+*Acierto: Cuando el programa quiere acceder a un dato que está en la línea L de la DRAM, se calcula el número de casillero LC = L%C y se revisan las etiquetas del casillero LC en los 2 bancos.
+Es un acierto ssi E₁[LC] = L o E₂[LC] = L (alguna de las 2 etiquetas es igual a L), es decir, si la línea buscada ya está en algún banco.
+
+La revisión anterior se hace en paralelo en los 2 bancos (no uno después de otro).
+
+
+*Desacierto: Cuando el programa quiere acceder a un dato que está en la línea L de la DRAM, se calcula el número de casillero LC = L%C y se revisan las etiquetas del casillero LC en los 2 bancos.
+Es un desacierto ssi E₁[LC] ≠ L y E₂[LC] ≠ L (ninguna de las 2 etiquetas es igual a L), es decir, si la línea buscada no está en ningún banco.
+
+Como en el casillero cabe una sola línea, hay que sacar L' para poner L.
+Para esto se elige pseudo aleatoriamente uno de los 2 bancos y en su casillero LC se hace el reemplazo con los mismos 3 pasos que vimos en "Cómo funciona una memoria caché de 64 KB de 1 grado de asociatividad con líneas de 16 bytes".
+
+
+
+Generalización de los conceptos de memoria caché:
+*M[L]: 
+La DRAM no se copia en la memoria caché byte por byte, sino que se copia en bloques de T bytes llamados líneas.
+
+Así, cuando el programa necesita un dato, se copia en la caché la línea completa donde está ese dato (Se toman T bytes de la DRAM y se pegan esos T bytes en la memoria caché).
+
+La línea L de la DRAM son los bytes desde T*L hasta T*L+T-1
+A la línea L de la DRAM se le llama M[L].
+
+
+*C:
+ *1 banco (1 grado de asociatividad):
+ Si la memoria caché tiene un tamaño de S bytes y cada línea mide T bytes, caben C = S/T líneas en la  memoria caché.
+ Al número de líneas que caben en la memoria caché se les llama C, donde C siempre es una potencia de 2.
+
+ Es decir, la memoria caché tiene C casilleros, y en cada uno se puede guardar una línea copiada de la  DRAM.
+
+ *g bancos (g grados de asociatividad):
+ Si la memoria caché está formada por g bancos, cada banco tiene un tamaño de B bytes y cada línea mide T bytes, entonces en cada banco caben C = B/T líneas.
+ Al número de líneas que caben en cada banco se le llama C, donde C siempre es una potencia de 2.
+ 
+ Es decir, cada banco tiene C casilleros, y en cada uno se puede guardar una línea copiada de la DRAM. En total, la memoria caché tiene un tamaño de g*B bytes y g*C casilleros.
+
+
+*C[LC]:
+Al casillero número LC de la memoria caché se le llama C[LC] con LC entre 0 y C-1.
+
+
+*L: 
+Si cada línea mide T bytes y un dato está en la dirección D en la DRAM, entonces está en la línea L = D/T (división entera) en la DRAM y el resto de la división (el D%T) indica el byte exacto en el que está el dato dentro de su respectiva línea.
+
+
+*LC:
+ *1 banco (1 grado de asociatividad):
+La línea anterior (L) solo puede guardarse en la memoria caché en el casillero número LC = L%C.
+
+ *g bancos (g grados de asociatividad):
+ La línea anterior (L) solo puede guardarse en el casillero número LC = L%C de alguno de los g bancos,  pero solo en uno de ellos a la vez. Es decir, cada línea tiene g casilleros posibles: C₁[LC], C₂[LC], …,  C_g[LC].
+
+
+*E[LC]:
+Como hay más líneas en la DRAM que casilleros en la memoria caché, entonces varias líneas comparten el mismo casillero, pero en ese casillero solo se puede guardar una línea a la vez.
+Ej: Las líneas 279 y 4375 tienen LC=279 (con C = 4096), así que ambas líneas se pueden guardar en C[279] pero solo una a la vez.
+
+¿Cómo sabe la memoria caché qué línea de la DRAM está guardada en un casillero?
+Cada vez que la memoria caché guarda una línea en un casillero, anota al lado el número de esa línea.
+Esa anotación es la etiqueta E[LC].
+Ej: Si en C[279] se guardó la línea 4375, entonces E[279]=4375.
+
+
+*A[LC]: Es un bit que se guarda junto a cada casillero C[LC] e indica si la línea guardada en ese casillero fue modificada desde que se copió de la DRAM.
+ *A[LC] = falso: La línea guardada en el casillero C[LC] es igual a la línea en la DRAM (no fue modificada)
+ *A[LC] = verdadero: La línea guardada en el casillero C[LC] no es igual a la línea en la DRAM (sí fue modificada)
+
+
+*Acierto: Depende de la memoria caché.
+
+
+*Desacierto: Depende de la memoria caché.
+
+
+*Acceso: Es el momento en que finalmente se lee o se escribe el dato que pidió el programa.
+ *Si el programa quiere leer: Se lee el dato que está guardado en C[LC] en la posición D%T y se le entrega al programa.
+ *Si el programa quiere escribir: Se escribe el dato en C[LC] en la posición D%T.
+ Ahora se tiene A[LC] = verdadero.
+
+
+
+Resolver ejercicios de g bancos: Se resuelven con una tabla con las columnas Dirección, L, LC, Etiquetas en LC (bancos), Resultado.
+1) En Dirección poner la dirección que da el enunciado, calcular L y LC.
+
+Para calcular L y LC:
+ *Si el tamaño de la línea es una potencia de 16:
+  *L: Se toma el elevado de la potencia de 16 y se borra esa cantidad de dígitos desde la derecha de D
+   Ej: Si las líneas miden 256 bytes (16²), se borran 2 dígitos desde la derecha de D y eso es el L 
+  
+ *Si el tamaño de la línea no es una potencia de 16:
+  *L: Si las líneas miden 2ᵏ bytes, se borran los k bits menos significativos de D, L = D>>K.
+
+
+ *Si C es una potencia de 16:
+  *LC: Se toma el elevado de la potencia de 16 y se toma esa cantidad de dígitos desde la derecha de L
+   Ej: Si C = 16, se toma 1 dígito desde la derecha de L y eso es el LC
+  
+ *Si C no es una potencia de 16:
+  *LC: Si C = 2ʲ, se toman los j bits menos significativos de L, LC = L&(2ʲ-1).
+
+
+2) En Etiquetas en LC poner las respectivas etiquetas (Viendo el LC y el LC del enunciado).
+
+Recordar que tenemos la tabla que estamos creando (Tabla 2) y la tabla donde están las líneas de cache con los bancos (Tabla 1)
+
+3) Ver el respectivo apunte según la cantidad de bancos y en Resultado poner si se tuvo un acierto (indicar banco) o desacierto.
+ *Acierto: Si en la fila en la que estamos (tabla 2), alguna de las etiquetas es igual al L.
+
+ *Desacierto: Si en la fila en la que estamos (tabla 2), ninguna de las etiquetas es igual al L.
+ Hay que ir a la tabla 1, en la fila del LC en el que estamos en la tabla 2, hay que elegir un banco y reemplazar su etiqueta por L 
+
+
+4) Repetir en ciclo hasta que no queden más direcciones de memoria.
+
+
+
+Tiempo de acceso promedio: Acá el término acceso se refiere a la operación completa desde que el programa pide un dato hasta que lo obtiene o lo escribe.
+Así, el tiempo de acceso promedio es cuánto tarda esa operación en promedio.
+Donde tiempo de acceso promedio = α · T_C + (1 - α) · T_M con
+*α: Tasa de aciertos
+*(1 - α): Tasa de desaciertos
+*T_C: Tiempo de acceso de un acierto
+*T_M: Tiempo de acceso de un desacierto
+
+
+
+Etapa: Es una parte del trabajo que hay que hacer para ejecutar una instrucción.
+
+
+Unidades de la CPU: Dentro de la CPU hay varias unidades, donde cada unidad tiene una función.
+Algunas unidades son
+*ALU: Hace operaciones
+*Banco de registros: Guarda datos
+*PC: Guarda la dirección de la próxima instrucción
+
+
+
+Micro-CPU: Es una parte de la CPU que coordina a las unidades.
+¿Cómo lo hace?
+En cada ciclo, la micro-CPU envía señales de control que le indican a cada unidad qué operación hacer.
+
+Para cada tipo de instrucción, la micro-CPU sigue una secuencia de pasos fija, esta secuencia se llama microprograma.
+Ej: Para una instrucción add
+1) Ciclo 1 (fetch): Indica que se lea la instrucción desde la memoria usando el PC
+2) Ciclo 2 (decode): Indica que se interprete la instrucción y se lean los registros
+3) Ciclo 3 (execute): Indica a la ALU que sume y que el resultado se guarde en un registro
+
+Nótese que la micro-CPU no ejecuta las instrucciones del programa, solo dirige a las unidades para que ellas las ejecuten.
+
+
+
+Arquitectura microprogramada: Es una forma de construir una CPU (es decir, una microarquitectura) en la que
+*Una micro-CPU guía la ejecución de cada instrucción
+
+*Cada instrucción tiene etapas y cada etapa toma un ciclo. 
+En microprogramación hay 3 etapas para ejecutar una instrucción
+*Fetch: Se encarga de traer la instrucción
+*Decode: Se encarga de interpretar la instrucción
+*Execute: Se encarga de ejecutar la instrucción
+
+Cada etapa toma 1 ciclo, así que una instrucción toma 3 ciclos (pues tiene 3 etapas)
+
+
+*La siguiente instrucción empieza solo cuando la anterior terminó por completo
+Ej: fetch -> decode -> execute.
+
+
+Pipeline: Es la cadena de etapas por la que pasa una instrucción.
+
+
+
+Arquitectura en pipeline: Es una forma de construir una CPU (es decir, una microarquitectura) en la que
+*Cada instrucción tiene etapas y cada etapa toma un ciclo. 
+Ej: Para una instrucción add
+1) Ciclo 1 (fetch):  Se lee la instrucción desde la memoria usando el PC
+2) Ciclo 2 (decode): Se interprete la instrucción y se lean los registros
+3) Ciclo 3 (execute): La ALU suma y el resultado se guarda en un registro
+
+
+*La siguiente instrucción no espera a que la anterior termine. 
+Así, en cada ciclo, cada instrucción avanza una etapa en el pipeline
+Ej: En un mismo ciclo, se ejecuta la instrucción A, se decodifica la instrucción B y se hace el fetch de la instrucción C.
+
+
+*Hay un problema de saltos: Cuando una instrucción hace un salto con una condición, podemos asumir si ese salto ocurre o no.
+
+Si el salto no ocurre no hay problema.
+ 
+Si el salto ocurre, este ocurre cuando la instrucción llega a la etapa de execute, así en el siguiente ciclo se debe hacer el fetch de la instrucción a la que se saltó.
+
+El problema de lo anterior es que como en un ciclo hay varias etapas de varias instrucciones, si se llega a hacer el salto, las instrucciones que no llegaron a la etapa de execute se descartan.
+
+
+
+Arquitectura superescalar: Es una forma de construir una CPU (es decir, una microarquitectura) en la que
+*Hay varios pipelines que avanzan al mismo tiempo (de manera síncrona), y las instrucciones entran alternadamente a cada uno.
+Ej: Con 2 pipelines, A entra al pipeline 1, B al pipeline 2, C al pipeline 1, D al pipeline 2, y así sucesivamente.
+
+Ojo, cada pipeline solo puede tener una instrucción por etapa en cada ciclo.
+Ej: Si A y B entraran ambas al pipeline 1, no podrían estar las dos en fetch en el mismo ciclo (pues en el pipeline 1 se debe tener una instrucción por etapa en cada ciclo).
+
+Así, la idea del superescalar es que en un mismo ciclo, dos instrucciones estén en la misma etapa a la vez para esto cada instrucción debe ir en un pipeline distinto.
+Ej:
+En el ciclo 1, A está en fetch en el pipeline 1 y B está en fetch en el pipeline 2
+
+
+*Cada instrucción tiene etapas y cada etapa toma un ciclo, igual que en la arquitectura en pipeline.
+
+
+*Con n pipelines, en cada ciclo hay n instrucciones en cada etapa, así que se pueden completar como máximo n instrucciones por ciclo.
+Ej: Con 2 pipelines, en un mismo ciclo se ejecutan las instrucciones A y B, se decodifican C y D, y se hace el fetch de E y F.
+
+
+*Hay un problema de saltos: Cuando una instrucción hace un salto con una condición, podemos asumir si ese salto ocurre o no.
+
+Si el salto no ocurre no hay problema.
+ 
+Si el salto ocurre, este ocurre cuando la instrucción llega a la etapa de execute, así en el siguiente ciclo se debe hacer el fetch de la instrucción a la que se saltó.
+
+El problema de lo anterior es que como en un ciclo hay varias etapas de varias instrucciones, si se llega a hacer el salto, las instrucciones que no llegaron a la etapa de execute se descartan.
+Como en cada etapa hay n instrucciones, se descartan más instrucciones que en la arquitectura en pipeline.
+
+
+*Hay un problema de dependencias: Si dos instrucciones en el próximo ciclo estarán en execute pero la ejecución de una instrucción depende de la ejecución de la otra instrucción, entonces no pueden ejecutarse juntas.
+
+En ese caso, la primera instrucción estará en el execute pero la segunda instrucción se quedará esperando en el decode.
+Como los pipelines avanzan juntos, todas las instrucciones que vienen detrás también esperan y no entra ninguna instrucción nueva en fetch hasta que la segunda instrucción esté en execute.
+
+
+
+Problema de las instrucciones que toman más de un ciclo: En lo que hemos visto, se asumía que cada instrucción toma un ciclo, pero existen instrucciones que pueden tomar más de un ciclo.
+¿Qué significa eso?
+Si una instrucción toma más de un ciclo, entonces cuando la instrucción llega a la etapa de execute, estará ahí la cantidad de ciclos que necesite y paraliza el resto del pipeline (o los pipelines).
+
+
+
+Arquitectura con ejecución especulativa y fuera de orden (OOO, Out Of Order):
+Es una forma de construir una CPU (es decir, una microarquitectura) en la que
+*Hay varias unidades de ejecución (llamadas ports) que operan en paralelo: ALUs, unidades de punto flotante, unidades de lectura y escritura de memoria, y unidades de saltos condicionales. Cada instrucción se ejecuta en la unidad que le corresponde.
+
+
+*Cada instrucción pasa por las etapas fetch, decode, execute y una etapa nueva llamada retire (jubilación).
+Después del decode, cada instrucción pasa a una zona de espera, donde aguarda hasta que sus operandos estén listos. Esta espera no aparece en las tablas.
+
+*Las instrucciones pasan a la etapa execute cuando sus operandos están listos, no en el orden del programa.
+Así, una instrucción puede ejecutarse antes que otras que venían antes en el programa, si no depende de ellas.
+Ej: Si D espera el resultado de C, las instrucciones I y J, que no dependen de C, pueden ejecutarse antes que D.
+
+
+*Las instrucciones que toman más de un ciclo no hacen esperar a las demás instrucciones: Mientras una instrucción de más de un ciclo está en execute, se siguen ejecutando las instrucciones siguientes (excepto las que necesitan el resultado de esa instrucción).
+Ej: Mientras C (que es lw) toma 3 ciclos en execute, se ejecutan I y J, pero D espera porque necesita t3, que escribe C.
+
+
+*Se pueden ejecutar varias instrucciones en el mismo ciclo, siempre que haya unidades de ejecución disponibles y sus operandos ya estén calculados.
+
+
+*Ejecución especulativa en los saltos: Cuando una instrucción tiene un salto con condición, cuando esa instrucción está en fetch, la unidad de predicción de saltos predice si el salto ocurrirá o no, y se siguen cargando y ejecutando instrucciones según esa predicción, sin esperar a que el salto se ejecute.
+Ej: la unidad de predicción predice que D salta a I, así que después de C y D se cargan I y J, y no E y F.
+
+Si la predicción es correcta, el trabajo hecho con esas instrucciones está bien.
+
+Si la predicción es incorrecta, hay que anular el trabajo de las instrucciones que se ejecutaron por error y volver a la instrucción correcta.
+Ej: si D no salta, se anula el trabajo de I y J y se vuelve a E.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Unix---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Unix: Es un sistema operativo creado en 1969, del cual muchos de los sistemas operativos de hoy descienden de él o lo imitan, por ejemplo, Linux, macOS, iOS.
+
+Está escrito en C e introdujo las ideas de que cada programa en ejecución es un proceso, un proceso puede crear otros procesos, todo se maneja con las mismas operaciones de leer y escribir, usar una Shell (programa para escribir comandos para usar en el sistema, ej: Zsh de macOS), y usar pipes (conectar la salida de un programa con la entrada de otro).
+
+
+
+Manual de Unix: Es la documentación que se incluye en el sistema Unix.
+Para ver el manual hay que ir a la Shell y hacer el comando man sección nombre. Donde
+*nombre: Es lo que se quiere consultar (un comando, una llamada al sistema, una función de C, etc.)
+*sección: Es opcional, es el número de la sección del manual donde buscar. Si no se indica, se muestra la primera sección donde aparece ese nombre.
+
+Hay 9 secciones en el manual de Unix
+*Sección 1: Programas ejecutables o comandos de la shell. Son los comandos que se escriben en la terminal.
+Ej: man ls muestra la documentación del comando ls.
+
+*Sección 2: Llamadas al sistema. Son funciones que entrega directamente el núcleo del sistema operativo, y son la forma en que un programa le pide cosas al sistema operativo.
+Ej: man fork muestra la documentación de la llamada al sistema fork.
+Ej: man 2 open muestra la documentación de la llamada al sistema open.
+
+*Sección 3: Llamadas a biblioteca. Son funciones de la biblioteca estándar de C y de otras bibliotecas. No son parte del núcleo, y muchas de ellas usan llamadas al sistema por dentro.
+Ej: man 3 printf muestra la documentación de la función printf de C.
+Ej: man atoi muestra la documentación de la función atoi de C.
+
+*Sección 4: Archivos especiales. Son archivos que representan dispositivos, y normalmente se encuentran en la carpeta /dev.
+Ej: man 4 null muestra la documentación del archivo especial /dev/null.
+
+*Sección 5: Formatos de archivo y convenciones. Explica cómo está organizado el contenido de ciertos archivos del sistema, y normalmente se encuentran en la carpeta /etc
+Ej: man 5 passwd muestra el formato del archivo /etc/passwd.
+
+*Sección 6: Juegos. Documentación de los juegos incluidos en el sistema.
+Ej: man 6 intro muestra la introducción a esta sección.
+
+*Sección 7: Diversas. Temas que no caben en las otras secciones, como descripciones generales y convenciones.
+Ej: man 7 man muestra el formato con que se escriben las páginas del manual.
+
+*Sección 8: Comandos administrativos del sistema. Comandos para administrar el sistema, que normalmente solo puede usar el superusuario (root).
+Ej: man 8 mount muestra la documentación del comando mount.
+
+*Sección 9: Rutinas del núcleo. Funciones internas del núcleo del sistema operativo.
+No todos los sistemas operativos basados en Unix incluyen esta sección (Linux normalmente no la incluye)
+Ej: man 9 malloc muestra la función malloc interna del núcleo. 
+
+
+
+Núcleo de Unix: Es la parte central del sistema operativo Unix. Sus características son.
+*Está guardado en el disco: Al encender el computador, se lee el núcleo de Unix del disco y se copia en la memoria DRAM, se queda en la DRAM todo el tiempo mientras el computador esté encendido.
+
+
+*Se encarga de ejecutar procesos: Recordar que un proceso es un programa en ejecución.
+Cada proceso tiene su propio espacio de memoria, donde están sus instrucciones y sus datos, separado del de los demás procesos.
+
+Un programa se carga en memoria en el momento de lanzarlo, esto lo hace el núcleo.
+¿Cómo?
+El núcleo copia el ejecutable desde el disco a la memoria y crea un proceso para ejecutarlo.
+
+
+*Es la única parte del sistema operativo que tiene acceso a toda la máquina: El núcleo tiene acceso a toda la memoria del computador y a todos los dispositivos del computador (teclado, mouse, ...).
+
+
+*Hace llamadas al sistema: El núcleo entrega funciones para dar servicios a los procesos, ya que los procesos no pueden acceder directamente a los dispositivos ni a toda la memoria.
+
+Así, todo lo que un proceso hace con archivos, otros procesos, internet, usuarios, etc., se lo pide al núcleo mediante llamadas al sistema
+
+
+
+Driver: Es una parte del programa del núcleo (se ejecuta dentro del núcleo) que sabe cómo comunicarse con un dispositivo específico.
+¿Programa del núcleo?
+Si, el núcleo también es un programa, es decir, un conjunto de instrucciones que ejecuta la CPU.
+
+Cada dispositivo tiene su propio driver, que conoce cómo funciona ese dispositivo.
+Así, el driver le ofrece al núcleo una forma estandarizada de usar dicho dispositivo.
+
+Ej: proceso → llamada al sistema (read) → núcleo → driver del disco → disco
+El proceso le pide el dato al núcleo con una llamada al sistema, el núcleo se lo pide al driver de forma estandarizada, y el driver se comunica con el disco.
+
+Los drivers pueden venir 
+*Dentro del sistema operativo
+Ej: En Linux, muchos fabricantes envían sus drivers para que se incluyan en el núcleo oficial.
+
+*Hay que instalarlos de forma externa.
+Ej: Al conectar una impresora, hay que ir a la página web del fabricante e instalar su respectivo driver.
+
+
+
+Directorio: Es lo que se conoce como carpeta, es decir, es el lugar donde se agrupan archivos y otros directorios.
+En Unix, un directorio se trata como un archivo especial que tiene dentro una lista de nombres.
+Así, los permisos en un directorio son
+*r: Se puede ver la lista de nombres.
+*w: Se puede modificar la lista, es decir, crear, borrar o renombrar archivos dentro del directorio.
+*x: Se puede entrar al directorio y acceder a los archivos que contiene.
+
+
+
+Árbol de carpetas: En Unix, todo se organiza en un árbol de carpetas que parte de una carpeta raíz, llamada /.
+Cada cosa tiene una ruta que indica su ubicación en ese árbol.
+Ej: /home/jperez/datos.txt es el archivo datos.txt, que está dentro de la carpeta jperez, que está dentro de home, que está dentro de la raíz.
+
+Lo bueno de Unix es que este sistema de árbol de carpetas es igual para archivos, directorios, programas, dispositivos, procesos, ... .
+
+
+
+Ruta: Es la forma de indicar dónde está un nombre, señalando la secuencia de directorios que hay que recorrer, separados por / y terminando en el nombre.
+Ej: /home/jperez/datos.txt
+Una ruta puede ser
+*Ruta absoluta: Empieza recorriendo desde la raíz.
+Ej: /home/jperez/datos.txt.
+
+*Ruta relativa: Empieza recorriendo desde el directorio actual.
+Ej: datos.txt (solo el nombre)
+
+
+
+Funciones de la biblioteca estándar de C y llamadas al sistema del núcleo de Unix:
+En el C2 estudiamos el manejo de archivos usando funciones de la biblioteca estándar de C (FILE, fopen, fgets, ...), esto está en la sección 3 del manual de Unix.
+
+Ahora, estudiaremos las llamadas al sistema del núcleo de Unix (open, read, write, close), esto está en la sección 2 del manual de Unix.
+
+La relación es que las funciones de la biblioteca estándar de C usan por dentro las llamadas al sistema.
+
+
+
+open: Es una llamada al sistema del núcleo de Unix que abre un archivo.
+Para usarlo hay que incluir #include <fcntl.h>.
+
+La sintaxis general es int open(char *ruta, int flags) o int open(char *ruta, int flags, mode_t modo) cuando se crea un archivo.
+
+Es una llamada al sistema que se usa de la forma open("ruta del archivo", flags), donde flags indica para qué se abre el archivo, y puede ser
+*O_RDONLY -> Solo lectura. El archivo debe existir
+
+*O_WRONLY -> Solo escritura. El archivo debe existir
+
+*O_RDWR -> Lectura y escritura. El archivo debe existir
+
+Además, a lo anterior se le pueden agregar opciones con | (OR bit a bit):
+
+*O_CREAT -> Si el archivo no existe, lo crea. En este caso se debe agregar el tercer argumento de mode_t.
+
+*O_TRUNC -> Si el archivo existe, borra su contenido (lo sobrescribe)
+
+*O_APPEND -> Lo que se escribe, se escribe después de lo que ya había en el archivo
+
+Ej:
+int fd_out = open("salida.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644); //escritura, lo crea si no existe y lo sobrescribe si existe.
+
+Lo que hace es
+1) Pide al núcleo que busque el archivo usando la ruta
+
+2) El núcleo revisa que el proceso tenga permiso para abrirlo en el modo pedido (y si se usó O_CREAT y el archivo no existe, lo crea)
+
+3) El núcleo registra el archivo abierto en la lista de archivos abiertos del proceso, y le asigna el menor file descriptor libre.
+
+¿Qué es el file descriptor?
+Es un int que identifica al archivo abierto.
+Así, el programa usa el file descriptor para indicar con qué archivo trabajar.
+
+4) Retorna el file descriptor si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno, así que se puede usar perror)
+
+
+
+close: Es una llamada al sistema del núcleo de Unix que cierra un archivo.
+Para usarlo hay que incluir #include <unistd.h>.
+
+La sintaxis general es int close(int fd).
+
+Es una llamada al sistema que se usa de la forma close(fd), donde
+*fd debe ser el file descriptor de un archivo abierto (el número que retornó open)
+
+Lo que hace es:
+1) Pide al núcleo que cierre el archivo identificado por fd
+
+2) El núcleo saca el archivo de la lista de archivos abiertos del proceso y libera los recursos que había reservado para él
+
+3) El file descriptor queda libre, así que el próximo open puede volver a usar ese mismo número
+
+4) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno, así que se puede usar perror)
+
+
+
+Cursores:
+*Cursor de las funciones de la biblioteca estándar de C: Indica hasta dónde el programa ha leído o escrito el archivo, contando solo los bytes que se le entregaron al programa.
+Es el que retorna ftell y el que mueve fseek.
+
+*Cursor con llamadas al sistema del núcleo de Unix: Indica hasta dónde el núcleo ha leído o escrito el archivo real en el disco.
+Es el que mueve lseek.
+
+Ej donde los cursores son distintos:
+Si abrimos un archivo en modo lectura, al hacer el primer fgetc, el cursor de C queda en el carácter siguiente al que se trajo (posición 1).
+Mientras que el cursor del núcleo queda en la posición 8192, porque para ese fgetc, C usó read para traer, por ejemplo, 8 KB (8192 bytes) del archivo al buffer, así que el núcleo ya leyó hasta ahí.
+
+
+
+read: Es una llamada al sistema del núcleo de Unix que lee un archivo.
+Para usarlo hay que incluir #include <unistd.h>.
+
+La sintaxis general es ssize_t read(int fd, void *buf, size_t nbytes).
+¿Qué es ssize_t?
+Es un tipo de dato entero con signo (a diferencia de size_t, que no tiene signo), para poder retornar -1 en caso de error.
+
+Es una llamada al sistema que se usa de la forma read(fd, buf, nbytes), donde
+*fd debe ser el file descriptor del archivo del que se va a leer
+*buf es la dirección de memoria donde se guardarán los bytes leídos (normalmente un arreglo)
+*nbytes es la cantidad máxima de bytes que se quieren leer
+
+Lo que hace es:
+1) Pide al núcleo que lea hasta nbytes bytes del archivo asociado a fd, empezando desde la posición actual del cursor del núcleo
+
+2) El núcleo copia los bytes leídos en buf, sin agregar ‘\0’
+
+3) Avanza el cursor del núcleo en la cantidad de bytes leídos
+
+4) Retorna la cantidad de bytes que efectivamente leyó, retorna 0 si ya se llegó al final del archivo, o retorna un número negativo (-1) si hubo algún error (y se guarda el motivo en errno)
+
+Además, read puede leer menos bytes de los que pedimos y no se termina en error.
+
+
+
+write: Es una llamada al sistema del núcleo de Unix que escribe un archivo.
+Para usarlo hay que incluir #include <unistd.h>.
+
+La sintaxis general es ssize_t write(int fd, void *buf, size_t nbytes).
+Retorna un ssize_t (entero con signo), para poder retornar -1 en caso de error.
+
+Es una llamada al sistema que se usa de la forma write(fd, buf, nbytes), donde
+*fd debe ser el file descriptor del archivo en el que se va a escribir
+*buf es la dirección de memoria donde están los bytes que se quieren escribir (normalmente un arreglo)
+*nbytes es la cantidad de bytes que se quieren escribir
+
+Lo que hace es
+1) Pide al núcleo que escriba nbytes bytes, tomados desde buf, en el archivo asociado a fd, empezando desde la posición actual del cursor del núcleo
+
+2) El núcleo copia esos bytes en el archivo (si había contenido en esas posiciones, lo sobrescribe)
+
+3) Avanza el cursor del núcleo en la cantidad de bytes escritos
+
+4) Retorna la cantidad de bytes que escribió (pueden ser menos) si no hubo error, o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+
+
+errno: Es una variable entera global, definida en errno.h, donde las llamadas al sistema (como open, read, write y close) y muchas funciones de C (como fopen) guardan un código que indica el motivo del error cuando fallan.
+
+Para usarla directamente hay que incluir #include <errno.h>.
+
+Cada código tiene un nombre que empieza con E. Algunos ejemplos son
+*ENOENT -> El archivo o directorio no existe (Ej: hacer open con O_RDONLY de un archivo que no existe)
+*EACCES -> No se tiene permiso para acceder al archivo
+*EBADF -> fd no es un file descriptor válido, o no está abierto en el modo necesario (Ej: hacer write en un archivo abierto con O_RDONLY)
+*EFAULT -> buf no es una dirección de memoria válida
+*EINVAL -> Algún argumento no es válido
+
+OJO, errno solo tiene sentido justo después de que una función falló. Si la función tuvo éxito, errno no se modifica, así que puede tener un valor de un error antiguo. Por eso, primero hay que revisar el valor que retornó la función, y solo si indica error, mirar errno.
+
+Ej:
+int fd = open("datos.txt", O_RDONLY);
+if (fd == -1) {               //primero se revisa si open falló
+    if (errno == ENOENT)      //recién ahora se mira errno
+        printf("El archivo no existe\n");
+}
+
+
+
+perror (Ya la habíamos visto en "Manejo de errores"):
+La sintaxis general es void perror(const char *s).
+
+Es una función de C que se usa de la forma perror(s), donde
+*s es un string que se muestra antes de la descripción del error (normalmente el nombre del archivo o de la función que falló)
+
+Para usarla hay que incluir #include <stdio.h>.
+
+Lo que hace es:
+1) Toma el código guardado en errno
+
+2) Traduce ese código a un texto que describe el error
+
+3) Imprime en la salida estándar de errores (stderr) el texto con el formato <s>: <descripción del error>
+
+Ej:
+int fd = open("datos.txt", O_RDONLY);
+if (fd == -1) {            //si open falló
+    perror("datos.txt");   //imprime, por ejemplo: "datos.txt: No such file or directory"
+    exit(1);
+}
+
+
+
+Ejemplo de uso de todo lo anterior:
+#define SIZE 8192                  //tamaño de cada bloque que se lee: 8 KB
+
+int main(int argc, char *argv[]) {
+  int in, out;                     //file descriptors del archivo origen (in) y destino (out)
+  ssize_t n;                       //cantidad de bytes que retorna read
+  char buf[SIZE];                  //arreglo donde se guardan los bytes leídos
+
+  if (argc != 3) {                 //si no se entregaron exactamente 2 archivos
+    fprintf(stderr, "Use: %s <from> <to>\n", argv[0]);   //muestra cómo usar el programa
+    exit(1);
+  }
+
+  if ((in = open(argv[1], O_RDONLY)) == -1) {   //abre el archivo origen para leer
+    perror(argv[1]);
+    exit(2);
+  }
+
+  if ((out = open(argv[2], O_WRONLY | O_CREAT | O_TRUNC, 0644)) == -1) {   //abre el destino para escribir, creándolo si no existe
+    perror(argv[2]);
+    exit(3);
+  }
+
+  while ((n = read(in, buf, SIZE)) > 0) {   //lee hasta 8 KB del origen, mientras lea al menos 1 byte
+    if (write(out, buf, n) != n) {          //escribe en el destino los n bytes leídos
+      perror(argv[2]);                      //si no se escribieron los n bytes, hubo un error
+      exit(4);
+    }
+  }
+
+  if (n < 0) {                     //si el ciclo terminó porque read retornó -1 (error)
+    perror(argv[1]);
+    exit(5);
+  }
+
+  close(in);                       //cierra ambos archivos
+  close(out);
+  return 0;
+}
+
+
+
+Categorías de usuarios: Para cada archivo, Unix distingue tres categorías de usuarios
+*Categoría de propietario (u): El usuario dueño del archivo (la mayoría de las veces es quien lo creó)
+
+*Categoría de grupo (g): Los usuarios que pertenecen al grupo asociado al archivo.
+¿Dónde se definen los grupos?
+Los grupos los define el administrador del sistema (root), y se guardan en el archivo /etc/group.
+En ese archivo, cada línea indica un grupo, con su respectivo nombre de grupo y la lista de usuarios que pertenecen a ese grupo.
+
+¿Cómo se asocia un grupo al archivo?
+Cuando un usuario crea un archivo, el archivo queda asociado al grupo principal de ese usuario, pero después se puede cambiar el grupo con el comando chgrp.
+Ej: Si jperez pertenece al grupo alumn y crea el archivo datos.txt, ese archivo queda con propietario jperez y grupo alumn.
+
+*Categoría de otros (o): Todos los demás usuarios.
+
+
+
+Tipos de acceso: Acceder a un archivo significa usarlo, hay tres formas de usar un archivo (tres tipos de acceso)
+*Leerlo
+*Modificarlo
+*Ejecutarlo
+
+
+
+Permisos: Un permiso es la autorización para hacer un tipo de acceso, hay tres tipos de permisos
+*Lectura (r): Permite leer el contenido del archivo
+*Escritura (w): Permite modificar el archivo
+*Ejecución (x): Permite ejecutar el archivo como programa
+
+Cada categoría de usuario tiene o no permisos asignados.
+
+Para ver los permisos que tienen las categorías de usuarios en un archivo, hay que usar el comando ls -l nombreArchivo.
+Ej: ls -l datos.txt 
+
+Lo que muestra el comando anterior es algo de la forma tipoArchivoPermisos cantidadLinksDuros propietario grupo tamañoEnBytes fechaUltimaModificación nombreArchivo.
+Ej: ls -l datos.txt muestra -rw-rw-r-- 1 jperez alumn 100 may 1 16:53 datos.txt
+
+Donde
+*tipoArchivoPermisos se divide en 4 partes:
+ *La primera parte es 1 carácter que indica el tipo del archivo, - si es un archivo normal, d si es un directorio.
+
+ *La segunda parte es un espacio de 3 caracteres que indican los permisos que tiene la categoría de propietario. Cada posición tiene la letra del permiso si está dado, o tiene - si no está dado.
+
+ *La tercera parte es un espacio de 3 caracteres que indican los permisos que tiene la categoría de grupo. Cada posición tiene la letra del permiso si está dado, o tiene - si no está dado.
+
+ *La cuarta parte es un espacio de 3 caracteres que indican los permisos que tiene la categoría de otros. Cada posición tiene la letra del permiso si está dado, o tiene - si no está dado.
+
+Ej: -rw-rw-r-- indica que el archivo es un archivo normal, la categoría de propietario tiene permisos de lectura y escritura, la categoría de grupo tiene permisos de lectura y escritura, la categoría de otros tiene permisos de lectura.
+
+
+
+Cambiar los permisos: Se pueden cambiar los permisos desde la shell o desde el programa
+
+*Cambiar permisos desde la shell: Se usa el comando chmod, de la forma chmod categorias operador permisos nombreArchivo. Donde
+
+ *Categorias: Es a qué categorias se les modifican los permisos, u (propietario), g (grupo), o (otros), a (a todos).
+
+ *Operador: Es qué se hace con los permisos, + (agrega los permisos indicados), - (quita los permisos indicados), = (deja exactamente los permisos indicados y quita los que no se indican)
+
+ *Permisos: Los permisos, r (lectura), w (escritura), x (ejecución)
+
+Ej: chmod ug=rw datos.txt, en el archivo datos.txt da permisos de lectura y escritura a la categoría de propietario y a la categoría de grupo
+
+
+*Cambiar permisos desde el programa: Se usa la llamada al sistema chmod.
+
+
+
+chmod: Es una llamada al sistema del núcleo de Unix que cambia los permisos de un archivo.
+Para usarla hay que incluir #include <sys/stat.h>.
+
+La sintaxis general es int chmod(const char *ruta, mode_t modo).
+
+Es una llamada al sistema que se usa de la forma chmod("ruta del archivo", modo), donde
+*ruta es la ruta del archivo al que se le cambian los permisos
+*modo son los nuevos permisos del archivo, escritos como una máscara de bits (un 1 entrega el permiso y un 0 no lo entrega). Usualmente se escribe como un número octal, que en C empieza con 0.
+
+
+Este número lo escribimos de izquierda a derecha, empezando por 0 y luego un dígito que indica los permisos de la categoría de propietario, otro dígito que indica los permisos de la categoría de grupo, y otro dígito que indica los permisos de la categoría de otros.
+
+El dígito se obtiene siguiendo la siguiente tabla
+Dígito   Bits   Permisos
+7        111    rwx  (4 + 2 + 1)
+6        110    rw-  (4 + 2)
+5        101    r-x  (4 + 1)
+4        100    r--  (4)
+3        011    -wx  (2 + 1)
+2        010    -w-  (2)
+1        001    --x  (1)
+0        000    ---  (0)
+
+Ej: El número 0664 indica que la categoría de propietario tiene permisos de escritura y lectura, la categoría de grupo tiene permisos de lectura y escritura, la categoría de otros tiene permisos de lectura.
+
+
+Lo que hace es:
+1) Pide al núcleo que busque el archivo usando la ruta
+
+2)El núcleo revisa que el proceso tenga permiso para cambiar los permisos del archivo (solo puede hacerlo el propietario del archivo o el superusuario root)
+
+3)El núcleo reemplaza los permisos del archivo por los indicados en modo
+
+4)Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+
+
+Links: Para entender el concepto de link, primero hay que entender los conceptos de archivo y de nombre.
+*Archivo: Son los datos guardados en el disco, junto con sus atributos (tamaño, permisos, propietario, etc.)
+*Nombre: Lo que identifica al archivo dentro de un directorio. En Unix, un mismo archivo puede tener varios nombres.
+Ej de nombres: datos.txt, jperez, home.
+
+Hay dos tipos de links, link duro y link simbólico.
+
+
+
+Link duro: Un link duro es otro nombre para el mismo archivo.
+No se crea un archivo nuevo ni se copian los datos, solo se agrega un nombre más del mismo archivo.
+Se puede hacer de dos formas
+*Desde la shell: Se usa el comando ln, de la forma ln nombreExistente nombreNuevo.
+
+*Desde el programa: Se usa la llamada al sistema link.
+
+Si se borra un nombre del archivo, el archivo sigue existiendo con el otro nombre.
+
+
+
+Link simbólico: Un link simbólico es un alias para un archivo.
+El alias es un archivo especial cuyo contenido es la ruta de otro archivo, así cuando el sistema abre el link simbólico, el sistema sigue esa ruta y abre el archivo al que apunta.
+Se puede hacer de dos formas
+*Desde la shell: Se usa el comando ln, de la forma ln -s nombreExistente nombreNuevo.
+
+*Desde el programa: Se usa la llamada al sistema symlink.
+
+Si se borra el nombre al que apunta el alias, el alias sigue existiendo pero ya no tiene validez, porque apunta a una ruta que no existe (aunque el archivo siga existiendo con otro nombre).
+Si se borra el alias, el archivo original no se ve afectado.
+
+
+
+link: Es una llamada al sistema del núcleo de Unix que crea un link duro, es decir, un nombre nuevo para un archivo que ya existe.
+Para usarla hay que incluir #include <unistd.h>.
+
+La sintaxis general es int link(const char *rutaExistente, const char *rutaNueva).
+
+Es una llamada al sistema que se usa de la forma link("ruta existente", "ruta nueva"), donde
+*rutaExistente es la ruta de un nombre que ya tiene el archivo
+*rutaNueva es la ruta del nombre nuevo que se le quiere dar al archivo (no debe existir)
+
+Lo que hace es:
+1) Le pide al núcleo que busque el archivo al que corresponde rutaExistente
+
+2) El núcleo revisa que rutaNueva no exista y que el proceso tenga permiso de escritura en el directorio donde se creará el nombre nuevo (porque crear un nombre es modificar la lista del directorio)
+
+3) El núcleo agrega el nombre nuevo a la lista del directorio, indicando que corresponde al mismo archivo que rutaExistente
+
+4) El núcleo suma 1 a la cantidad de nombres (links duros) del archivo
+
+5) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+Ej:
+*link("otro.txt", "datos.txt"): como la ruta nueva es solo un nombre (ruta relativa), el nombre datos.txt se agrega al directorio actual.
+
+*link("otro.txt", "/home/jperez/docs/copia.txt"): el nombre copia.txt se agrega al directorio /home/jperez/docs.
+
+
+Ej de utilidad de link:
+Si un archivo de configuración /home/jperez/config.txt se necesita también en /home/jperez/proyecto/, se puede hacer link("/home/jperez/config.txt", "/home/jperez/proyecto/config.txt"), así desde ambos directorios se usa el mismo archivo pero no lo copiamos y no duplicamos espacio en disco.
+
+
+
+symlink: Es una llamada al sistema del núcleo de Unix que crea un link simbólico, es decir, un alias que guarda la ruta de otro archivo.
+Para usarla hay que incluir #include <unistd.h>.
+
+La sintaxis general es int symlink(const char *rutaDestino, const char *rutaNueva).
+
+Es una llamada al sistema que se usa de la forma symlink("ruta destino", "ruta nueva"), donde
+*rutaDestino es la ruta del archivo al que va a apuntar el link simbólico
+*rutaNueva es la ruta del link simbólico que se quiere crear (no debe existir)
+
+Lo que hace es:
+1) El núcleo revisa que rutaNueva no exista y que el proceso tenga permiso de escritura en el directorio donde se creará el link simbólico (porque crear un nombre es modificar la lista del directorio)
+
+2) El núcleo crea un archivo especial nuevo, cuyo contenido es el texto de rutaDestino
+
+3) El núcleo agrega el nombre del link simbólico a la lista del directorio, indicando que corresponde a ese archivo especial
+
+4) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+A diferencia de link, symlink sí crea un archivo nuevo (el archivo especial que guarda la ruta), y no suma 1 a la cantidad de nombres del archivo destino.
+
+Ej:
+*symlink("otro.txt", "datos2.txt"): se crea en el directorio actual el link simbólico datos2.txt, que apunta a otro.txt del mismo directorio.
+
+*symlink("/home/jperez/otro.txt", "/home/jperez/docs/alias.txt"): se crea en el directorio /home/jperez/docs el link simbólico alias.txt, que apunta a /home/jperez/otro.txt.
+
+
+Ej de utilidad de symlink:
+Si un archivo de configuración /home/jperez/config.txt se necesita también en /home/jperez/proyecto/, se puede hacer symlink("/home/jperez/config.txt", "/home/jperez/proyecto/config.txt"), así desde ambos directorios se usa el mismo archivo sin copiarlo. 
+La diferencia con link es que, si se borra /home/jperez/config.txt, el link simbólico deja de funcionar.
+
+
+
+unlink: Es una llamada al sistema del núcleo de Unix que borra un nombre de un archivo (y, si era su último nombre, borra el archivo).
+Para usarla hay que incluir #include <unistd.h>.
+
+La sintaxis general es int unlink(const char *ruta).
+
+Es una llamada al sistema que se usa de la forma unlink("ruta"), donde
+*ruta es la ruta del nombre que se quiere borrar
+
+Lo que hace es:
+1) Pide al núcleo que busque el nombre usando la ruta
+
+2) El núcleo revisa que el proceso tenga permiso de escritura en el directorio donde está el nombre (porque borrar un nombre es modificar la lista del directorio). No se necesita permiso de escritura en el archivo
+
+3) El núcleo quita el nombre de la lista del directorio
+
+4) El núcleo resta 1 a la cantidad de nombres (links duros) del archivo
+
+5) Si al archivo ya no le quedan nombres, el núcleo borra el archivo del disco (si algún proceso todavía lo tiene abierto, se borra recién cuando ese proceso hace close)
+
+6) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+
+
+rm: Hace lo mismo que unlink pero es un comando para hacerlo desde la shell.
+Se usa de la forma rm opciones archivo1 archivo2 ... . 
+Ej: rm /home/jperez/docs/copia.txt, borra copia.txt del directorio /home/jperez/docs.
+
+Donde algunas opciones son
+*-i: Pide confirmación antes de borrar
+*-f: Borra sin preguntar y sin mostrar error si el archivo no existe
+*-r: Borra un directorio con todo su contenido (peligroso). Acá, el rm se usa de la forma rm -r rutaDirectorio
+
+Si se pone más de un archivo se puede borrar más de un archivo a la vez.
+
+
+
+rename: Es una llamada al sistema del núcleo de Unix que cambia el nombre de un archivo, o lo mueve a otro directorio.
+Para usarla hay que incluir #include <stdio.h>.
+
+La sintaxis general es int rename(const char *rutaVieja, const char *rutaNueva).
+
+Es una llamada al sistema que se usa de la forma rename("ruta vieja", "ruta nueva"), donde
+*rutaVieja es la ruta del nombre actual del archivo
+*rutaNueva es la ruta del nombre nuevo que se le quiere dar al archivo
+
+Lo que hace es:
+1) Pide al núcleo que busque el archivo al que corresponde rutaVieja
+
+2) El núcleo revisa que el proceso tenga permiso de escritura en el directorio de rutaVieja y en el directorio de rutaNueva (porque se modifican las listas de ambos directorios)
+
+3) Si rutaNueva ya existe, el núcleo borra ese nombre (como un unlink), para reemplazarlo
+
+4) El núcleo agrega el nombre nuevo a la lista del directorio de rutaNueva, indicando que corresponde al mismo archivo, y quita el nombre viejo de la lista del directorio de rutaVieja
+
+5) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+
+
+mv: Hace lo mismo que rename pero es un comando para hacerlo desde la shell.
+Se usa de la forma mv opciones rutaVieja rutaNueva.
+Ej: mv datos.txt otro.txt, cambia el nombre datos.txt por otro.txt en el directorio actual.
+Ej: mv datos.txt /home/jperez/docs/copia.txt, mueve datos.txt al directorio /home/jperez/docs y le cambia el nombre a copia.txt.
+
+Donde algunas opciones son
+*-i: Pide confirmación antes de reemplazar un archivo que ya existe con el nombre nuevo
+*-f: Reemplaza sin preguntar
+*-n: No reemplaza nunca un archivo que ya existe
+
+Si la ruta nueva es un directorio que ya existe, el archivo se mueve a ese directorio con el mismo nombre.
+Ej: mv datos.txt /home/jperez/docs, mueve datos.txt al directorio /home/jperez/docs.
+
+
+
+stat: Es una llamada al sistema del núcleo de Unix que consulta los atributos de un archivo (tamaño, permisos, propietario, fechas, etc.).
+Para usarla hay que incluir #include <sys/stat.h>.
+
+La sintaxis general es int stat(const char *ruta, struct stat *buf).
+
+Es una llamada al sistema que se usa de la forma stat("ruta", &st), donde
+*ruta es la ruta del archivo del que se quieren consultar los atributos
+*&st es la dirección de memoria de una estructura struct stat, donde el núcleo guardará los atributos
+
+¿Qué es struct stat?
+Es una estructura definida en sys/stat.h, que guarda los atributos de un archivo. Algunos de sus campos son
+*dev_t st_dev -> Número que identifica el disco (el sistema de archivos) donde está guardado el archivo
+*ino_t st_ino -> Número que identifica al archivo dentro de ese disco, llamado número de inodo. Cada archivo tiene su propio número de inodo, y es el verdadero identificador del archivo (los nombres en los directorios apuntan a él)
+*off_t st_size -> Tamaño del archivo en bytes
+*mode_t st_mode -> Tipo de archivo (archivo normal, directorio, etc.) y sus permisos
+*nlink_t st_nlink -> Cantidad de nombres (links duros) que tiene el archivo
+*uid_t st_uid -> Número que identifica al propietario
+*gid_t st_gid -> Número que identifica al grupo
+*time_t st_atime -> Fecha del último acceso (la última vez que se leyó el archivo) (medido desde el 1 de enero de 1970 en segundos)
+*time_t st_mtime -> Fecha de la última modificación del contenido (medido desde el 1 de enero de 1970 en segundos)
+*time_t st_ctime -> Fecha del último cambio de atributos (Ej: al cambiar los permisos). La lámina la define como la fecha de creación del archivo (medido desde el 1 de enero de 1970 en segundos)
+
+En lo anterior escribimos los campos de la forma tipoDato campo, y todos los tipoDato son enteros.
+Para usar un campo, solo se escribe su nombre (Ej: st.st_size).
+
+A diferencia de FILE, en struct stat sí se accede directamente a los campos (Ej: st.st_size).
+
+Juntos, st_dev y st_ino identifican a un archivo de forma única en todo el sistema: no puede haber dos archivos distintos con el mismo par (st_dev, st_ino).
+
+Lo que hace es:
+1) Pide al núcleo que busque el archivo usando la ruta
+
+2) El núcleo revisa que el proceso tenga permiso para llegar al archivo (permiso de ejecución x en los directorios de la ruta). No se necesita permiso de lectura en el archivo, porque no se lee su contenido, solo sus atributos
+
+3) El núcleo copia los atributos del archivo en la estructura apuntada por buf
+
+4) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+
+
+ls -l: Es similar a stat, muestra los atributos de archivos, pero es un comando para hacerlo desde la shell.
+Se usa de la forma ls -l opciones ruta1 ruta2 ... .
+Ej: ls -l datos.txt, muestra los atributos del archivo datos.txt.
+
+Si la ruta es un directorio, muestra los atributos de todos los archivos que contiene.
+Ej: ls -l /home/jperez/docs, muestra los atributos de todos los archivos de /home/jperez/docs.
+
+Donde algunas opciones son
+*-a: Muestra también los archivos ocultos, es decir, los que empiezan con punto (incluyendo . y ..)
+*-i: Muestra también el número de inodo de cada archivo
+*-h: Muestra el tamaño en una forma más fácil de leer (Ej: 8.0K en vez de 8192)
+*-d: Si la ruta es un directorio, muestra los atributos del directorio mismo, y no de los archivos que contiene
+
+
+
+lseek: Es una llamada al sistema del núcleo de Unix que mueve el cursor del núcleo de un archivo abierto, para leer o escribir en cualquier posición (acceso directo).
+Para usarla hay que incluir #include <unistd.h>.
+
+La sintaxis general es off_t lseek(int fd, off_t desplazamiento, int origen).
+¿Qué es off_t?
+Es un tipo de dato entero con signo que se usa para representar posiciones dentro de un archivo (en bytes).
+
+Es una llamada al sistema que se usa de la forma lseek(fd, desplazamiento, origen), donde
+*fd debe ser el file descriptor de un archivo abierto
+*desplazamiento es la cantidad de bytes que se quiere mover el cursor (puede ser negativo para moverse hacia atrás)
+*origen es el punto desde el cual se cuenta el desplazamiento, hay 3 orígenes posibles
+*SEEK_SET -> El inicio del archivo
+*SEEK_CUR -> La posición actual del cursor del núcleo
+*SEEK_END -> El final del archivo
+
+Lo que hace es:
+1) El núcleo calcula la nueva posición usando origen + desplazamiento
+
+2) El núcleo revisa que la nueva posición no sea negativa (no se puede quedar antes del inicio del archivo)
+
+3) El núcleo mueve el cursor del núcleo a la nueva posición. 
+No lee ni escribe nada, solo cambia desde dónde se hará el próximo read o write.
+
+4) Retorna la nueva posición del cursor del núcleo, contada en bytes desde el inicio del archivo, si todo salió bien, o retorna -1 si hubo algún error (y se guarda el motivo en errno) 
+
+
+
+Macros para determinar el tipo de archivo: Son las mismas macros con parámetros que ya vimos para el C2, es decir, las que se definen con #define y que el preprocesador reemplaza por su cuerpo antes de compilar.
+
+Las macros son
+*S_ISLNK(m) -> ¿Es un link simbólico?
+*S_ISREG(m) -> ¿Es un archivo normal? (regular file)
+*S_ISDIR(m) -> ¿Es un directorio?
+*S_ISCHR(m) -> ¿Es un dispositivo de caracteres?
+*S_ISBLK(m) -> ¿Es un dispositivo de bloques de bytes?
+
+Donde m debe ser st.st_mode (el st que vimos en stat).
+Las macros valen un número distinto de 0 si la respuesta a su respectiva pregunta es Sí o valen 0 si la respuesta a su respectiva pregunta es No.
+
+Las macros anteriores están definidas con #define dentro del archivo sys/stat.h, de la forma
+#define S_ISLNK(m)   (((m) & S_IFMT) == S_IFLNK)    //¿es link simbólico?
+#define S_ISREG(m)   (((m) & S_IFMT) == S_IFREG)    //¿es archivo normal?
+#define S_ISDIR(m)   (((m) & S_IFMT) == S_IFDIR)    //¿es directorio?
+#define S_ISCHR(m)   (((m) & S_IFMT) == S_IFCHR)    //¿es dispositivo de caracteres?
+#define S_ISBLK(m)   (((m) & S_IFMT) == S_IFBLK)    //¿es dispositivo de bloques?
+#define S_ISFIFO(m)  (((m) & S_IFMT) == S_IFIFO)    //¿es pipe?
+#define S_ISSOCK(m)  (((m) & S_IFMT) == S_IFSOCK)   //¿es socket?
+
+Ej: Al hacer if (S_ISREG(st.st_mode)), el preprocesador lo reemplaza por if (((st.st_mode) & S_IFMT) == S_IFREG).
+Lo de dentro del if vale un número distinto de 0 si el archivo es normal o vale 0 si el archivo no es normal.
+
+
+
+Funciones para recorrer el contenido de un directorio: Para usar las funciones hay que incluir #include <dirent.h>
+
+*opendir: DIR *opendir(char *nom);
+Abre el directorio cuya ruta es nom. 
+Retorna un puntero a una estructura DIR, que representa el directorio abierto, o NULL si hubo un error (y se guarda el motivo en errno). 
+Igual que con FILE, no se accede a los campos de DIR: se usa solo a través de estas funciones.
+
+
+*readdir: struct dirent *readdir(DIR *dir);
+Retorna el siguiente nombre de la lista del directorio, dentro de una estructura struct dirent. 
+Cada vez que se llama, avanza al siguiente. Cuando ya no quedan más nombres, retorna NULL.
+
+¿Qué es struct dirent?
+Es la estructura que retorna readdir. 
+Su campo más importante es d_name, un string con el nombre de un archivo del directorio. 
+
+
+*rewinddir: void rewinddir(DIR *dir);
+Vuelve al principio de la lista del directorio, para que el próximo readdir retorne de nuevo el primer nombre.
+
+
+*closedir: int closedir(DIR *dir);
+Cierra el directorio.
+ Retorna 0 si todo salió bien o −1 si hubo un error.
+
+
+
+Funciones para trabajar con el directorio de trabajo: Un directorio de trabajo es el directorio actual del proceso.
+Para usar las funciones hay que incluir #include <unistd.h>
+
+*getcwd: char *getcwd(char *nom, int maxlen);
+Obtiene la ruta absoluta (desde la raíz /) del directorio de trabajo, y la guarda en el arreglo nom, que debe tener espacio para maxlen caracteres. 
+Retorna nom si todo salió bien o NULL si hubo un error (por ejemplo, si la ruta no cabe en maxlen caracteres). 
+
+Es lo que hace el comando pwd.
+
+
+*chdir: int chdir(char *nom);
+Cambia el directorio de trabajo del proceso al directorio cuya ruta es nom.
+Desde ese momento, las rutas relativas se buscan desde ese directorio. 
+Retorna 0 si todo salió bien o −1 si hubo un error. 
+
+Es lo que hace el comando cd.
+
+
+
+Ej de todo lo anterior:
+#define MAX_PATH 1001                        //espacio máximo para la ruta del directorio
+
+int main(int argc, char *argv[]) {
+  char path_cdir[MAX_PATH];                  //arreglo donde se guardará la ruta del directorio de trabajo
+
+  if (getcwd(path_cdir, MAX_PATH) == NULL) { //obtiene la ruta absoluta del directorio de trabajo
+    perror("directorio de trabajo");
+    exit(1);
+  }
+  printf("directorio de trabajo: %s\n", path_cdir);
+
+  DIR *cdir = opendir(path_cdir);            //abre el directorio de trabajo
+  if (cdir == NULL) {
+    perror(path_cdir);
+    exit(2);
+  }
+
+  for (struct dirent *ent = readdir(cdir); ent != NULL; ent = readdir(cdir)) {   //recorre los nombres del directorio
+    struct stat st;
+    if (stat(ent->d_name, &st) < 0) {        //obtiene los atributos del archivo
+      perror(ent->d_name);
+      exit(3);
+    }
+    printf("%s:\n", ent->d_name);            //muestra el nombre
+    printf("   perms=%c%c%c tamanno=%10ld creacion=%10ld "
+           "modificacion=%10ld usuario=%5d\n",
+           st.st_mode & S_IRUSR ? 'r' : '-',   //¿el propietario tiene permiso de lectura?
+           st.st_mode & S_IWUSR ? 'w' : '-',   //¿el propietario tiene permiso de escritura?
+           st.st_mode & S_IXUSR ? 'x' : '-',   //¿el propietario tiene permiso de ejecución?
+           st.st_size, st.st_ctime, st.st_mtime, st.st_uid);
+  }
+  closedir(cdir);
+  return 0;
+}
+
+El operador -> (flecha) sirve para acceder a un campo de una estructura a través de un puntero a esa estructura (lo vimos en el C1).
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Fork---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PID: Es el identificador de proceso, es un número entero que identifica de forma única a cada proceso.
+Ej: Después del fork, quedan dos procesos, el padre y el hijo. A pesar de que el hijo es una copia del padre, sus PID son distintos.
+
+
+
+Recordatorio del funcionamiento de llamadas al sistema y procesos: Las llamadas al sistema del núcleo de Unix siempre las hace un proceso (un programa en ejecución que le pide algo al núcleo).
+
+Cuando se ejecuta un programa, el núcleo crea un proceso para ejecutarlo, entonces cuando el programa llega a una línea que tenga una llamada al sistema (open, read, ...), es ese proceso el que le pide al núcleo que haga la operación.
+
+
+
+Definición de fork: Es una llamada al sistema del núcleo de Unix que crea un proceso.
+El proceso es
+1) Antes del fork, hay un proceso (llamémoslo proceso padre)
+2) Al usar fork, se crea un proceso nuevo (llamémoslo proceso hijo), que es una copia del proceso padre, es decir, tiene la misma memoria (al hijo se le crea un espacio de memoria nuevo, que es una copia exacta del espacio de memoria del padre), el mismo código, los mismos archivos abiertos, los mismos file descriptors.
+
+Después del fork se puede trabajar con el padre y el hijo de forma independiente, pero ambos procesos comparten el cursor, así si un proceso lee o escribe, el cursor avanza también para el otro.
+
+Además, fork retorna dos veces.
+¿Por qué?
+Al usar fork, pasa a haber dos procesos ejecutándose (el padre y el hijo), ambos en el punto donde se llamó a fork.
+Así, aunque fork se llamó una sola vez (en el padre), cuando termina el fork se hace un retorno en cada proceso, es decir, hay dos retornos. 
+En el hijo retorna 0 y en el padre retorna el PID del hijo, y así cada proceso sabe si es el padre o el hijo.
+
+
+
+fork: Es una llamada al sistema del núcleo de Unix que crea un proceso nuevo, que es un clon del proceso que la llamó. Es la única forma de crear un proceso en Unix.
+Para usarla hay que incluir #include <unistd.h>.
+
+La sintaxis general es pid_t fork(void).
+¿Qué es pid_t?
+Es un tipo de dato entero con signo que se usa para representar un PID.
+
+Es una llamada al sistema que se usa de la forma fork(), sin argumentos.
+El proceso que llama a fork es el proceso padre, y el clon es el proceso hijo.
+
+Lo que hace es:
+
+1) El núcleo crea un proceso nuevo (el hijo) y le asigna un PID nuevo
+
+2) El núcleo crea un espacio de memoria nuevo para el hijo, que es una copia exacta del espacio de memoria del padre. Desde ese momento, ambos espacios son independientes, así lo que modifica uno no afecta al otro
+
+3) El hijo hereda los file descriptors abiertos del padre
+
+4) Padre e hijo continúan ejecutándose al mismo tiempo, ambos desde el punto donde se llamó a fork (en paralelo si hay cores disponibles)
+
+5) fork retorna dos veces, una en cada proceso:
+*En el hijo, retorna 0
+*En el padre, retorna el PID del hijo, o un número negativo si hubo algún error (y se guarda el motivo en errno). Ej: si se excedió la cantidad máxima de procesos
+
+
+
+Trabajar en el proceso padre y trabajar en el proceso hijo: Sabemos que hay dos procesos y que el proceso que llama al fork es el padre, entonces ¿Dónde podemos hacer cosas en el proceso hijo?
+Se usa el valor que retorna fork para separar el proceso padre y el proceso hijo dentro del mismo código.
+
+De la forma
+pid_t pid = fork();
+
+if (pid < 0) {
+  //error: no se creó el hijo (esto lo ejecuta solo el padre)
+}
+else if (pid == 0) {
+  //AQUÍ VA LO QUE HACE EL HIJO
+  //solo el hijo entra aquí, porque solo en el hijo fork retornó 0
+}
+else {
+  //AQUÍ VA LO QUE HACE EL PADRE
+  //solo el padre entra aquí, porque en el padre fork retornó el PID del hijo (!= 0)
+}
+
+
+
+exit dentro de un proceso: La sintaxis general es void exit(int estado).
+Para usarla hay que incluir #include <stdlib.h>.
+
+Es una función que se usa de la forma exit(estado), donde
+*estado es el código de retorno del proceso. 
+Por convención, 0 indica éxito y un valor distinto de 0 indica error, pero puede ser cualquier entero entre 0 y 255 (el significado depende de cada programa). 
+Ej: exit(2), exit(210)
+
+Lo que hace es:
+1) Vacía los buffers de todos los FILE abiertos (como un fflush) y cierra los archivos
+
+2) Termina el proceso que la llamó
+
+3) Le entrega el estado al núcleo, que lo guarda hasta que el proceso padre lo recoja con waitpid.
+Solo se guardan los 8 bits menos significativos del estado, así que va de 0 a 255 (Ej: exit(300) entrega 300 % 256 = 44)
+
+Quedarse con los 8 bits menos significativos de un número es lo mismo que calcular el resto de dividirlo por 256 (= 2⁸).
+
+Mientras el padre no recoja el estado con waitpid, el proceso queda como zombie, es decir, está muerto pero el núcleo todavía guarda su código de retorno.
+
+
+
+waitpid: Es una llamada al sistema del núcleo de Unix que hace que el proceso padre espere a que un proceso hijo termine, y obtiene la información de cómo terminó (incluido su código de retorno).
+Para usarla hay que incluir #include <sys/wait.h>.
+
+La sintaxis general es pid_t waitpid(pid_t pid, int *status, int options).
+
+Es una llamada al sistema que se usa de la forma waitpid(pid, &status, options), donde
+*pid es el PID del hijo que se quiere esperar (el valor que retornó fork en el padre)
+
+*&status es la dirección de memoria de una variable int, donde el núcleo guardará la información de cómo terminó el hijo
+
+*options son opciones, las principales opciones son
+ *0 -> El padre se queda esperando hasta que el hijo termine
+ 
+ *WNOHANG -> El padre no se queda esperando.
+ Si el hijo ya terminó, waitpid lo entierra y retorna su PID 
+ Si el hijo todavía no termina, waitpid retorna 0 de inmediato, y el padre sigue con lo suyo
+ 
+ *WUNTRACED -> waitpid también retorna si el hijo fue detenido (pausado), no solo si terminó
+
+ *WCONTINUED -> waitpid también retorna si un hijo que estaba detenido continúa su ejecución
+
+Lo que hace es:
+1) Si el hijo todavía no termina:
+*Con options = 0, el padre se queda detenido en waitpid hasta que el hijo termine
+*Con options = WNOHANG, el padre no espera: waitpid retorna 0 de inmediato y no hace los pasos siguientes
+
+2) Cuando el hijo termina, el núcleo guarda en status la información de cómo terminó, incluido su código de retorno
+
+3) El núcleo libera los últimos recursos que quedaban del hijo (el hijo deja de ser zombie). A esto se le llama enterrar al hijo
+
+4) Retorna el PID del hijo que terminó si todo salió bien, retorna 0 si se usó WNOHANG y el hijo todavía no termina, o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+status no es solo el código de retorno, porque guarda varias cosas juntas.
+Para obtener el código de retorno se usa la macro WEXITSTATUS(status), que entrega los 8 bits menos significativos del código de retorno del hijo.
+
+
+
+Caso cuando el padre tiene más de un hijo: Es más fácil verlo con un ejemplo.
+Supongamos que el padre creó 3 hijos con fork, y sus PIDs son 101, 102 y 103.
+
+Hay dos formas de que el padre espere a esos hijos con waitpid.
+*Forma 1, esperar a un hijo específico usando el PID de ese hijo: waitpid(101, &status, 0) espera solo al hijo 101.
+Si el hijo 103 termina antes, no importa, así el padre sigue esperando hasta que termine el 101.
+
+*Forma 2, esperar a cualquier hijo usando el PID -1: waitpid(-1, &status, 0) espera a que termine cualquiera de los 3 hijos, el que termine primero. 
+Apenas uno termina, waitpid lo entierra y retorna su PID. 
+Como el padre no sabía cuál iba a terminar primero, el valor que retorna waitpid le dice cuál fue.
+
+Ej: si el hijo 103 es el primero en terminar, waitpid(-1, &status, 0) retorna 103.
+
+Para enterrar a todos los hijos hay que hacer un waitpid(-1, &status, 0) por cada hijo.
+
+
+
+Ejemplo de todo lo anterior:
+int g = 0;                        //variable global
+
+int main() {
+  int v = 0;                      //variable local
+  pid_t child = fork();           //se crea el hijo. En el hijo, child vale 0; en el padre, child vale el PID del hijo
+
+  if (child == 0) {               //esto lo ejecuta solo el hijo
+    g = v = 1;                    //el hijo cambia g y v a 1 (en su propia memoria, no afecta al padre)
+    printf("Hijo g=%d v=%d\n", g, v);   //imprime: Hijo g=1 v=1
+    exit(210);                    //el hijo muere con código de retorno 210
+  }
+  else {                          //esto lo ejecuta solo el padre
+    int status;                   //variable donde el núcleo guardará cómo terminó el hijo
+    waitpid(child, &status, 0);   //el padre espera a que el hijo termine y lo entierra
+    int rc = WEXITSTATUS(status); //obtiene el código de retorno del hijo (210)
+    printf("Padre g=%d v=%d rc=%d child=%d\n", g, v, rc, child);   //imprime: Padre g=0 v=0 rc=210 child=1364 (por ejemplo)
+  }
+  return 0;
+}
+
+
+
+Definición de pipe: Es un canal de comunicación entre dos procesos.
+Un proceso escribe datos en un extremo del pipe, y otro proceso lee esos datos desde el otro extremo del pipe (en el mismo orden en que se escribieron).
+
+Hay dos ocasiones comunes en donde se usa un pipe
+*Entre un proceso padre y su proceso hijo
+*Entre dos procesos hijos que tienen el mismo proceso padre
+
+Un pipe se puede usar en la shell o como llamada al sistema del núcleo de Unix.
+
+
+
+Pipe en la shell: El símbolo | (pipe) conecta la salida estándar de un programa con la entrada estándar de otro programa.
+Ej: ls | more, ls escribe la lista de archivos en el pipe (|) y more lee esa lista de archivos desde el pipe (|) y muestra el resultado.
+
+
+
+pipe: Es una llamada al sistema del núcleo de Unix que crea un pipe.
+Para usarla hay que incluir #include <unistd.h>.
+
+La sintaxis general es int pipe(int fds[2]).
+
+Es una llamada al sistema que se usa de la forma pipe(fds), donde
+*fds es un arreglo de 2 int, donde el núcleo guardará los dos file descriptors del pipe.
+El fds debe estar definido antes del pipe, de la forma int fds[2].
+
+Así queda
+int fds[2];
+pipe(fds);
+
+Lo que hace es:
+1) El núcleo crea el pipe
+
+2) Guarda en fds[0] el file descriptor de lectura del pipe (se usa como el fd del read)
+
+3) Guarda en fds[1] el file descriptor de escritura del pipe (se usa como el fd del write)
+
+4) Retorna 0 si todo salió bien o retorna -1 si hubo algún error (y se guarda el motivo en errno)
+
+Para comunicar a un padre y un hijo, el pipe se crea antes del fork, así el hijo hereda ambos file descriptors. 
+
+El proceso hijo debe cerrar el extremo de lectura (pues no lo usa), haciendo close (fds[0]);
+El proceso padre debe cerrar el extremo de escritura (pues no lo usa), haciendo close (fds[1]);
+
+Ej de comunicación entre proceso padre y proceso hijo usando pipe:
+
+int fds[2];
+pipe(fds);                         //se crea el pipe antes del fork
+
+pid_t pid = fork();
+if (pid == 0) {                    //el hijo
+  close(fds[0]);                   //el hijo no lee, así que cierra el extremo de lectura
+  int resultado = 42;
+  write(fds[1], &resultado, sizeof(int));   //escribe el resultado en el pipe
+  close(fds[1]);
+  exit(0);
+}
+else {                             //el padre
+  close(fds[1]);                   //el padre no escribe, así que cierra el extremo de escritura
+  int resultado;
+  read(fds[0], &resultado, sizeof(int));    //lee el resultado desde el pipe
+  close(fds[0]);
+  waitpid(pid, NULL, 0);
+  printf("El hijo calculó %d\n", resultado);
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
